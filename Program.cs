@@ -9,7 +9,7 @@ namespace GroupBot;
 
 internal static class Program
 {
-    private static TelegramBotClient Bot { get; set; }
+    private static TelegramBotClient? Bot { get; set; }
 
     public static async Task Main(string[] args)
     {
@@ -20,11 +20,13 @@ internal static class Program
 
         var botToken = config.GetSection("BotConfiguration")["BotToken"];
 
-        if (string.IsNullOrEmpty(botToken)) throw new ArgumentException("Bot token environment variable is missing");
+        if (string.IsNullOrEmpty(botToken))
+            throw new ArgumentException("Bot token environment variable is missing");
 
         using var cts = new CancellationTokenSource();
         Bot = new TelegramBotClient(botToken, cancellationToken: cts.Token);
-        var me = await Bot.GetMe();
+
+        var me = await Bot.GetMeAsync(cts.Token);
         Bot.OnError += OnError;
         Bot.OnMessage += OnMessage;
         Bot.OnUpdate += OnUpdate;
@@ -36,23 +38,41 @@ internal static class Program
 
     private static Task OnError(Exception exception, HandleErrorSource source)
     {
-        Console.WriteLine(exception); // just dump the exception to the console
+        Console.WriteLine($"Error: {exception.Message}");
         return Task.CompletedTask;
     }
 
     private static async Task OnMessage(Message msg, UpdateType type)
     {
         if (msg.Text == "/start")
-            await Bot.SendMessage(msg.Chat, "Welcome! Pick one direction",
-                replyMarkup: new InlineKeyboardMarkup().AddButtons("Left", "Right"));
+        {
+            var replyMarkup = new InlineKeyboardMarkup(new[]
+            {
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Left"),
+                    InlineKeyboardButton.WithCallbackData("Right")
+                }
+            });
+
+            await Bot.SendTextMessageAsync(
+                msg.Chat.Id,
+                "Welcome! Pick one direction",
+                replyMarkup: replyMarkup
+            );
+        }
     }
 
     private static async Task OnUpdate(Update update)
     {
-        if (update is { CallbackQuery: { } query }) // non-null CallbackQuery
+        if (update.CallbackQuery != null)
         {
-            await Bot.AnswerCallbackQuery(query.Id, $"You picked {query.Data}");
-            await Bot.SendMessage(query.Message!.Chat, $"User {query.From} clicked on {query.Data}");
+            var query = update.CallbackQuery;
+            await Bot.AnswerCallbackQueryAsync(query.Id, $"You picked {query.Data}");
+            await Bot.SendTextMessageAsync(
+                query.Message.Chat.Id,
+                $"User {query.From.Username} clicked on {query.Data}"
+            );
         }
     }
 }
