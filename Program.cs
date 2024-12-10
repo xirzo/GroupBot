@@ -42,6 +42,9 @@ internal static class Program
         Factory.Register("/list", new ListCommand(AllLists));
         Factory.Register("/lists", new ListsCommand(AllLists));
         Factory.Register("/openlists", new OpenListsCommand(AllLists));
+        Factory.Register("/swap", new SwapCommand(AllLists));
+        Factory.Register("Принять", new SwapAcceptCommand(AllLists));
+        Factory.Register("Отказаться", new SwapDeclineCommand(AllLists));
 
         Bot.OnError += OnError;
         Bot.OnMessage += OnMessage;
