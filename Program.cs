@@ -50,14 +50,14 @@ internal static class Program
             {
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData("Left"),
-                    InlineKeyboardButton.WithCallbackData("Right")
+                    InlineKeyboardButton.WithCallbackData("📝 Открыть списки"),
+                    InlineKeyboardButton.WithCallbackData("❌ Закрыть")
                 }
             });
 
             await Bot.SendTextMessageAsync(
                 msg.Chat.Id,
-                "Welcome! Pick one direction",
+                "Привет! Выбери команду.",
                 replyMarkup: replyMarkup
             );
         }
