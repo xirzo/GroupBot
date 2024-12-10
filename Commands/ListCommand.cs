@@ -1,3 +1,4 @@
+using System.Text;
 using GroupBot.Lists;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -21,11 +22,18 @@ public class ListCommand : ICommand
         {
             var list = _allLists.Find(l => l.Name == words[1]);
 
-            if (list != null)
-            {
-                var listContains = string.Join("\n", list.List.Select(l => l));
-                await bot.SendMessage(message.Chat.Id, listContains);
-            }
+            if (list == null) return;
+
+            var text = new StringBuilder();
+
+            text.Append($"📝 Список: {list.Name}\n\n");
+
+            foreach (var participant in list.List) text.Append(participant.Name + "\n");
+
+            await bot.SendMessage(
+                message.Chat.Id,
+                text.ToString()
+            );
         }
     }
 }

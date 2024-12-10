@@ -24,7 +24,8 @@ public class OpenListsCommand : ICommand
 
             text.Append($"📝 Список: {list.Name}\n\n");
 
-            foreach (var str in list.List) text.Append(str + "\n");
+            foreach (var participant in list.List) text.Append(participant.Name + "\n");
+
 
             await bot.SendMessage(
                 message.Chat.Id,

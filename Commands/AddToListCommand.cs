@@ -19,13 +19,13 @@ public class AddToListCommand : ICommand
 
         if (words == null) return;
 
-        if (words.Length > 2 && words[0] == "/addtolist")
+        if (words is ["/addtolist", _, _])
         {
             var list = _allLists.Find(l => l.Name == words[1]);
 
             if (list != null)
             {
-                for (var i = 2; i < words.Length; i++) list.Add(words[i]);
+                list.Add(long.Parse(words[2]), words[1]);
 
                 await bot.SendMessage(message.Chat.Id, $"В список с названием {list.Name} добавлены новые люди");
             }

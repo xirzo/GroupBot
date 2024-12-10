@@ -19,13 +19,13 @@ public class RemoveFromListCommand : ICommand
 
         if (words == null) return;
 
-        if (words.Length > 2 && words[0] == "/removefromlist")
+        if (words is ["/removefromlist", _, _])
         {
             var list = _allLists.Find(l => l.Name == words[1]);
 
             if (list != null)
             {
-                for (var i = 2; i < words.Length; i++) list.Remove(words[i]);
+                list.Remove(long.Parse(words[2]));
 
                 await bot.SendMessage(message.Chat.Id, $"Из списка с названием {list.Name} удалены люди");
             }
