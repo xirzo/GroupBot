@@ -1,5 +1,6 @@
 using GroupBot.Lists;
 using GroupBot.Requests;
+using GroupBot.Shared;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;

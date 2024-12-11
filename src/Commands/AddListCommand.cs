@@ -1,4 +1,5 @@
 using GroupBot.Lists;
+using GroupBot.Shared;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
