@@ -1,4 +1,5 @@
 .idea/
 appsettings.json
+participants.json
 obj/
 bin/
