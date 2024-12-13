@@ -2,3 +2,4 @@
 appsettings.json
 obj/
 bin/
+*.db
