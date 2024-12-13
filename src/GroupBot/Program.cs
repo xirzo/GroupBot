@@ -1,6 +1,10 @@
-﻿using GroupBot.Commands;
+﻿using System.Data;
+using System.Data.SQLite;
+using GroupBot.Commands;
+using GroupBot.Database;
 using GroupBot.Lists;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -22,6 +26,14 @@ if (string.IsNullOrEmpty(botToken))
 
 using var cts = new CancellationTokenSource();
 bot = new TelegramBotClient(botToken, cancellationToken: cts.Token);
+
+var dbPath = config.GetSection("Database")["Path"];
+
+if (string.IsNullOrEmpty(dbPath))
+    throw new ArgumentException("DB Path environment variable is missing");
+
+var sqliteHelper = new SQLiteHelper(dbPath);
+
 
 if (bot == null)
     throw new ArgumentException("Bot is null");
@@ -57,6 +69,23 @@ Task OnError(Exception exception, HandleErrorSource source)
 
 async Task OnMessage(Message msg, UpdateType type)
 {
+    var telegramId = msg.Chat.Id;
+    var username = msg.Chat.Username ?? "unknown";
+
+    if (!await sqliteHelper.UserExistsAsync(telegramId))
+    {
+        var query = "INSERT INTO users (telegram_id, username) VALUES (@telegram_id, @username)";
+        await sqliteHelper.ExecuteQueryAsync(query,
+            new SQLiteParameter("@telegram_id", telegramId),
+            new SQLiteParameter("@username", username));
+
+        Console.WriteLine($"New user added: {telegramId}, {username}");
+    }
+    else
+    {
+        Console.WriteLine($"User already exists: {telegramId}");
+    }
+
     var searchKey = msg.Text?.Split(' ')[0].Replace(" ", string.Empty);
 
     if (searchKey == null) return;

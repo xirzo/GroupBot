@@ -1,12 +1,13 @@
 global using Xunit;
-global using GroupBot.Tests.Constants;
+global using static GroupBot.Tests.Constants.TestConstants;
 using Microsoft.Extensions.Configuration;
+using Telegram.Bot;
 
 namespace GroupBot.Tests.Constants;
 
 public static class TestConstants
 {
-    public static readonly string BotToken;
+    public static TelegramBotClient Bot { get; }
 
     static TestConstants()
     {
@@ -15,6 +16,8 @@ public static class TestConstants
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
 
-        BotToken = config.GetSection("BotConfiguration")["BotToken"] ?? throw new InvalidOperationException();
+        var botToken = config.GetSection("BotConfiguration")["BotToken"] ?? throw new InvalidOperationException();
+
+        Bot = new TelegramBotClient(botToken);
     }
 }
