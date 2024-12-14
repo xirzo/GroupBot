@@ -22,6 +22,12 @@ public class SwapCommand : ICommand
     {
         var words = message.Text?.Split(' ');
 
+
+        var replyParameters = new ReplyParameters
+        {
+            MessageId = message.MessageId
+        };
+
         if (words is ["/swap", _] == false)
         {
             await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /swap <название списка>",
@@ -29,10 +35,6 @@ public class SwapCommand : ICommand
             return;
         }
 
-        var replyParameters = new ReplyParameters
-        {
-            MessageId = message.MessageId
-        };
 
         var user = message.From;
 

@@ -55,7 +55,7 @@ factory.Register("/addlist", new AddListCommand(sqliteHelper));
 factory.Register("/addtolist", new AddToListCommand(sqliteHelper));
 factory.Register("/shufflelist", new ShuffleListCommand(allLists));
 factory.Register("/removefromlist", new RemoveFromListCommand(allLists));
-factory.Register("/list", new ListCommand(allLists));
+factory.Register("/list", new ListCommand(sqliteHelper));
 factory.Register("/lists", new ListsCommand(allLists));
 factory.Register("/openlists", new OpenListsCommand(allLists));
 factory.Register("/swap", new SwapCommand(requestContainer, sqliteHelper));

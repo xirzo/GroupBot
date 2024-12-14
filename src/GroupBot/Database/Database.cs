@@ -513,6 +513,58 @@ SET position = (
             await updateCommand.ExecuteNonQueryAsync();
         }
 
-        // Другие методы взаимодействия с базой данных...
+        /// <summary>
+        /// Получает всех пользователей в указанном списке.
+        /// </summary>
+        /// <param name="listId">Идентификатор списка.</param>
+        /// <returns>Список участников (Participant) в порядке их позиций.</returns>
+        /// <exception cref="InvalidOperationException">Бросается, если список не существует.</exception>
+        public async Task<List<Participant>> GetAllUsersInList(long listId)
+        {
+            var participants = new List<Participant>();
+
+            await using var connection = new SQLiteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            // Проверяем существование списка
+            var checkListQuery = "SELECT COUNT(1) FROM lists WHERE id = @list_id;";
+            await using (var checkListCmd = new SQLiteCommand(checkListQuery, connection))
+            {
+                checkListCmd.Parameters.AddWithValue("@list_id", listId);
+                var listExists = Convert.ToInt32(await checkListCmd.ExecuteScalarAsync()) > 0;
+                if (!listExists)
+                    throw new InvalidOperationException($"List with ID {listId} does not exist.");
+            }
+
+            // Запрос для получения пользователей в списке с сортировкой по позиции
+            var selectUsersQuery = @"
+                SELECT u.telegram_id, u.full_name
+                FROM list_members lm
+                JOIN users u ON lm.user_id = u.id
+                WHERE lm.list_id = @list_id
+                ORDER BY lm.position ASC;
+            ";
+
+            await using var command = new SQLiteCommand(selectUsersQuery, connection);
+            command.Parameters.AddWithValue("@list_id", listId);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                var telegramId = reader.GetInt64(0); // telegram_id
+                var fullName = !reader.IsDBNull(1) ? reader.GetString(1) : string.Empty;
+
+                var participant = new Participant
+                {
+                    Id = telegramId,
+                    Name = fullName
+                };
+
+                participants.Add(participant);
+            }
+
+            return participants;
+        }
     }
 }
