@@ -1,4 +1,3 @@
-using GroupBot.Lists;
 using GroupBot.Requests;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -8,14 +7,14 @@ namespace GroupBot.Commands;
 
 public class SwapDeclineCommand : ICommand
 {
-    private readonly List<ChatList> _allLists;
+    private readonly RequestsContainer _requestsContainer;
 
-    public SwapDeclineCommand(List<ChatList> allLists)
+    public SwapDeclineCommand(RequestsContainer requestsContainer)
     {
-        _allLists = allLists;
+        _requestsContainer = requestsContainer;
     }
 
-    public Task Execute(Message message, TelegramBotClient bot)
+    public async Task Execute(Message message, TelegramBotClient bot)
     {
         var replyParameters = new ReplyParameters
         {
@@ -23,30 +22,32 @@ public class SwapDeclineCommand : ICommand
         };
 
         if (message.Chat.Type != ChatType.Private)
-            return bot.SendMessage(message.Chat.Id, "❌ Ответьте на сообщение в личном чате",
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Ответьте на сообщение в личном чате",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
+            return;
+        }
 
         if (message.From == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Пользователь не найден", replyParameters: replyParameters);
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Пользователь не найден", replyParameters: replyParameters);
+            return;
+        }
 
         var userId = message.From.Id;
-        var pendingRequest = PendingRequestsContainer.GetRequest(userId);
+        var pendingRequest = _requestsContainer.GetRequest(userId);
 
         if (pendingRequest == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Ожидающий запрос не найден.", replyParameters: replyParameters);
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Ожидающий запрос не найден.", replyParameters: replyParameters);
+            return;
+        }
 
-        var listName = pendingRequest.Value.ListName;
+        _requestsContainer.Remove(pendingRequest.Value);
 
-        var list = _allLists.FirstOrDefault(list => list.Name == listName);
-
-        if (list == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Список не найден", replyParameters: replyParameters);
-
-
-        PendingRequestsContainer.RemoveRequest(pendingRequest.Value);
-
-        return bot.SendMessage(message.Chat.Id,
-            $"❌ Вы успешно отказались от обмена в списке {list.Name}",
+        await bot.SendMessage(message.Chat.Id,
+            "❌ Вы успешно отказались от обмена",
             replyParameters: replyParameters);
+        return;
     }
 }

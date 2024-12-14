@@ -1,4 +1,3 @@
-using GroupBot.Lists;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -6,29 +5,37 @@ namespace GroupBot.Commands;
 
 public class AddToListCommand : ICommand
 {
-    private readonly List<ChatList> _allLists;
+    private readonly Database.Database _db;
 
-    public AddToListCommand(List<ChatList> allLists)
+    public AddToListCommand(Database.Database db)
     {
-        _allLists = allLists;
+        _db = db;
     }
 
     public async Task Execute(Message message, TelegramBotClient bot)
     {
         var words = message.Text?.Split(' ');
 
-        if (words == null) return;
-
         if (words is ["/addtolist", _, _])
         {
-            var list = _allLists.Find(l => l.Name == words[1]);
+            var lists = await _db.GetAllLists();
 
-            if (list != null)
+            var list = lists.First(l => l.Name == words[1]);
+
+            if (list == null)
+                throw new ArgumentException($"List {words[1]} not found");
+
+            var doesUserExist = await _db.DoesUserExist(long.Parse(words[2]));
+
+            if (doesUserExist == false)
             {
-                list.Add(long.Parse(words[2]), words[1]);
-
-                await bot.SendMessage(message.Chat.Id, $"В список с названием {list.Name} добавлены новые люди");
+                await bot.SendMessage(message.Chat.Id, $"Пользователь с айди {words[2]} не найден");
+                return;
             }
+
+            _db.TryAddUserToList(list.Id, long.Parse(words[2]));
+
+            await bot.SendMessage(message.Chat.Id, $"Участник {words[2]} добавлен в список {list.Name}");
         }
     }
 }

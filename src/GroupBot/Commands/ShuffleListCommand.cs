@@ -15,14 +15,15 @@ public class ShuffleListCommand : ICommand
 
     public async Task Execute(Message message, TelegramBotClient bot)
     {
-        var words = message.Text?.Split(' ');
-
-        if (words is ["/shufflelist", _])
-        {
-            var list = _allLists.Find(l => l.Name == words[1]);
-            list?.Shuffle();
-
-            await bot.SendMessage(message.Chat.Id, $"Список с названием {list?.Name} был зашафлен");
-        }
+        throw new NotImplementedException();
+        // var words = message.Text?.Split(' ');
+        //
+        // if (words is ["/shufflelist", _])
+        // {
+        //     var list = _allLists.Find(l => l.Name == words[1]);
+        //     list?.Shuffle();
+        //
+        //     await bot.SendMessage(message.Chat.Id, $"Список с названием {list?.Name} был зашафлен");
+        // }
     }
 }

@@ -8,14 +8,16 @@ namespace GroupBot.Commands;
 
 public class SwapAcceptCommand : ICommand
 {
-    private readonly List<ChatList> _allLists;
+    private readonly RequestsContainer _requestsContainer;
+    private readonly Database.Database _db;
 
-    public SwapAcceptCommand(List<ChatList> allLists)
+    public SwapAcceptCommand(RequestsContainer requestsContainer, Database.Database db)
     {
-        _allLists = allLists;
+        _requestsContainer = requestsContainer;
+        _db = db;
     }
 
-    public Task Execute(Message message, TelegramBotClient bot)
+    public async Task Execute(Message message, TelegramBotClient bot)
     {
         var replyParameters = new ReplyParameters
         {
@@ -23,39 +25,36 @@ public class SwapAcceptCommand : ICommand
         };
 
         if (message.Chat.Type != ChatType.Private)
-            return bot.SendMessage(message.Chat.Id, "❌ Ответьте на сообщение в личном чате",
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Ответьте на сообщение в личном чате",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
+            return;
+        }
 
         if (message.From == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Пользователь не найден", replyParameters: replyParameters);
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Пользователь не найден", replyParameters: replyParameters);
+            return;
+        }
 
-        var userId = message.From.Id;
-        var pendingRequest = PendingRequestsContainer.GetRequest(userId);
+        var userTelegramId = message.From.Id;
+        var pendingRequest = _requestsContainer.GetRequest(userTelegramId);
 
         if (pendingRequest == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Ожидающий запрос не найден.", replyParameters: replyParameters);
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Ожидающий запрос не найден.", replyParameters: replyParameters);
+            return;
+        }
 
-        var targetUserId = pendingRequest.Value.TargetUserId;
-        var listName = pendingRequest.Value.ListName;
+        var lists = await _db.GetAllLists();
 
-        var list = _allLists.FirstOrDefault(list => list.Name == listName);
+        var list = lists.First(l => l.Id == pendingRequest.Value.ListDbId);
 
-        if (list == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Список не найден", replyParameters: replyParameters);
+        list.Swap(pendingRequest.Value.UserDbId, pendingRequest.Value.TargetUserDbId);
 
-        var userItem = list.List.FirstOrDefault(item => item.Id == userId);
-        var targetUserItem = list.List.FirstOrDefault(item => item.Id == targetUserId);
+        _requestsContainer.Remove(pendingRequest.Value);
 
-        if (userItem == null || targetUserItem == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Один из пользователей не найден в списке участников",
-                replyParameters: replyParameters);
-
-
-        list.Swap(userItem, targetUserItem);
-
-        PendingRequestsContainer.RemoveRequest(pendingRequest.Value);
-
-        return bot.SendMessage(message.Chat.Id,
+        await bot.SendMessage(message.Chat.Id,
             $"✅ Вы были успешно обменены местами в списке {list.Name}",
             replyParameters: replyParameters);
     }

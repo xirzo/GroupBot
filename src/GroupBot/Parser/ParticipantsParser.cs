@@ -1,16 +1,16 @@
 using System.Text.Json;
-using GroupBot.Shared;
 
-namespace GroupBot.Loader;
+namespace GroupBot.Parser;
 
 public class ParticipantsParser
 {
-    public List<Participant> LoadParticipants(string jsonFilePath)
+    public List<Participant> Parse(string jsonFilePath)
     {
         if (!File.Exists(jsonFilePath))
             throw new FileNotFoundException($"JSON file not found: {jsonFilePath}");
 
         var json = File.ReadAllText(jsonFilePath);
-        return JsonSerializer.Deserialize<List<Participant>>(json) ?? new List<Participant>();
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        return JsonSerializer.Deserialize<List<Participant>>(json, options) ?? new List<Participant>();
     }
 }

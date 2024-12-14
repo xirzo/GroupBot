@@ -9,71 +9,80 @@ namespace GroupBot.Commands;
 
 public class SwapCommand : ICommand
 {
-    private readonly List<ChatList> _allLists;
+    private readonly RequestsContainer _requestsContainer;
+    private readonly Database.Database _db;
 
-    public SwapCommand(List<ChatList> allLists)
+    public SwapCommand(RequestsContainer requestsContainer, Database.Database db)
     {
-        _allLists = allLists;
+        _requestsContainer = requestsContainer;
+        _db = db;
     }
 
-    public Task Execute(Message message, TelegramBotClient bot)
+    public async Task Execute(Message message, TelegramBotClient bot)
     {
         var words = message.Text?.Split(' ');
 
         if (words is ["/swap", _] == false)
-            return bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /swap <название списка>",
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /swap <название списка>",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
-
+            return;
+        }
 
         var replyParameters = new ReplyParameters
         {
             MessageId = message.MessageId
         };
 
-        var participants = ParticipantsContainer.Participants;
-
         var user = message.From;
+
         if (user == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Пользователь запрашивающий команду не найден",
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Пользователь запрашивающий команду не найден",
                 replyParameters: replyParameters);
+
+            return;
+        }
 
         var replyToMessage = message.ReplyToMessage;
 
         if (replyToMessage == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Вам нужно ответить на сообщение человека из списка команд",
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Вам нужно ответить на сообщение человека из списка команд",
                 replyParameters: replyParameters);
+            return;
+        }
 
+        var lists = await _db.GetAllLists();
 
-        var list = _allLists.Find(l => l.Name == words[1]);
-
-        if (list == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Список не найден", replyParameters: replyParameters);
+        var list = lists.First(l => l.Name == words[1]);
 
         var targetUser = replyToMessage.From;
 
         if (targetUser == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Не удалось определить пользователя для обмена",
-                replyParameters: replyParameters);
-
-        var participantAsker = participants.Find(p => p.Id == user.Id);
-        var participantGiver = participants.Find(p => p.Id == targetUser.Id);
-
-        if (participantAsker == null || participantGiver == null)
-            return bot.SendMessage(message.Chat.Id, "❌ Один из пользователей не найден в списке участников",
-                replyParameters: replyParameters);
-
-        var pendingRequest = new PendingRequest
         {
-            UserId = participantAsker.Id,
-            TargetUserId = participantGiver.Id,
-            ListName = list.Name
-        };
+            await bot.SendMessage(message.Chat.Id, "❌ Не удалось определить пользователя для обмена",
+                replyParameters: replyParameters);
+            return;
+        }
 
-        PendingRequestsContainer.AddRequest(pendingRequest);
+        if (targetUser == user)
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Вы не можете отправить запрос самому себе",
+                replyParameters: replyParameters);
+            return;
+        }
+
+        var userDbId = await _db.GetUserIdByTelegramIdAsync(user.Id);
+        var targetUserDbId = await _db.GetUserIdByTelegramIdAsync(targetUser.Id);
+
+        var pendingRequest = new PendingRequest(targetUser.Id, userDbId, targetUserDbId, list.Id);
+
+        _requestsContainer.Add(pendingRequest);
 
         var replyMarkup = new ReplyKeyboardMarkup(true).AddButtons("Принять", "Отказаться");
 
-        return bot.SendMessage(participantGiver.Id,
+        await bot.SendMessage(targetUser.Id,
             $"{user.Username} отправил тебе swap-запрос в списке {list.Name}",
             replyMarkup: replyMarkup);
     }
