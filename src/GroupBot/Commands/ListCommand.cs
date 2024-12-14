@@ -1,4 +1,5 @@
 using System.Text;
+using GroupBot.Commands.Abstract;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -34,7 +35,13 @@ public class ListCommand : ICommand
 
         text.Append($"📝 Список: {list.Name}\n\n");
 
-        foreach (var user in users) text.Append(user.Name + "\n");
+        var index = 1;
+
+        foreach (var user in users)
+        {
+            text.Append(index + ". " + user.Name + "\n");
+            ++index;
+        }
 
         await bot.SendMessage(
             message.Chat.Id,
