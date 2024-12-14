@@ -16,7 +16,7 @@ TelegramBotClient bot = null!;
 
 IConfiguration config = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", false, true)
     .Build();
 
 var botToken = config.GetSection("Tokens")["BotToken"];
@@ -31,7 +31,7 @@ bot = new TelegramBotClient(botToken, cancellationToken: cts.Token);
 if (bot == null)
     throw new ArgumentException("Bot is null");
 
-var dbPath = config.GetSection("DatabaseHelper")["Path"];
+var dbPath = config.GetSection("Database")["Path"];
 
 if (string.IsNullOrEmpty(dbPath))
     throw new ArgumentException("DB Path environment variable is missing");
