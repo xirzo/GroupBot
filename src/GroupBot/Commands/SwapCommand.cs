@@ -9,9 +9,9 @@ namespace GroupBot.Commands;
 public class SwapCommand : ICommand
 {
     private readonly RequestsContainer _requestsContainer;
-    private readonly Database.Database _db;
+    private readonly Database.DatabaseHelper _db;
 
-    public SwapCommand(RequestsContainer requestsContainer, Database.Database db)
+    public SwapCommand(RequestsContainer requestsContainer, Database.DatabaseHelper db)
     {
         _requestsContainer = requestsContainer;
         _db = db;

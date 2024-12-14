@@ -6,9 +6,9 @@ namespace GroupBot.Commands;
 
 public class ToEndCommand : ICommand
 {
-    private Database.Database _db;
+    private Database.DatabaseHelper _db;
 
-    public ToEndCommand(Database.Database db)
+    public ToEndCommand(Database.DatabaseHelper db)
     {
         _db = db;
     }

@@ -4,7 +4,7 @@ using Telegram.Bot.Types;
 
 namespace GroupBot.Commands;
 
-public class AddListCommand(Database.Database db) : ICommand
+public class AddListCommand(Database.DatabaseHelper db) : ICommand
 {
     public async Task Execute(Message message, TelegramBotClient bot)
     {

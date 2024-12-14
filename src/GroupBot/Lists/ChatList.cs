@@ -6,9 +6,9 @@ public class ChatList
 {
     public string Name { get; }
     public long Id { get; }
-    private readonly Database.Database _db;
+    private readonly Database.DatabaseHelper _db;
 
-    public ChatList(string name, long id, Database.Database db)
+    public ChatList(string name, long id, Database.DatabaseHelper db)
     {
         Name = name;
         Id = id;

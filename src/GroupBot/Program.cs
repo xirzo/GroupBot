@@ -31,12 +31,12 @@ bot = new TelegramBotClient(botToken, cancellationToken: cts.Token);
 if (bot == null)
     throw new ArgumentException("Bot is null");
 
-var dbPath = config.GetSection("Database")["Path"];
+var dbPath = config.GetSection("DatabaseHelper")["Path"];
 
 if (string.IsNullOrEmpty(dbPath))
     throw new ArgumentException("DB Path environment variable is missing");
 
-var sqliteHelper = new Database(dbPath);
+var sqliteHelper = new DatabaseHelper(dbPath);
 
 var jsonFilePath = config.GetSection("Participants")["Path"];
 

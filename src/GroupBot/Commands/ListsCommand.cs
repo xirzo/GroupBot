@@ -9,9 +9,9 @@ namespace GroupBot.Commands;
 
 public class ListsCommand : ICommand
 {
-    private readonly Database.Database _db;
+    private readonly Database.DatabaseHelper _db;
 
-    public ListsCommand(Database.Database db)
+    public ListsCommand(Database.DatabaseHelper db)
     {
         _db = db;
     }
