@@ -566,5 +566,144 @@ SET position = (
 
             return participants;
         }
+
+        /// <summary>
+        /// Перемещает пользователя в конец списка. Если пользователь не находится в списке, он будет добавлен.
+        /// </summary>
+        /// <param name="listId">Идентификатор списка.</param>
+        /// <param name="telegramId">Telegram ID пользователя.</param>
+        /// <returns>True, если операция успешна; иначе, false.</returns>
+        public async Task<bool> MoveUserToEndOfListAsync(long listId, long telegramId)
+        {
+            if (listId <= 0)
+                throw new ArgumentException("List ID must be a positive number.", nameof(listId));
+
+            await using var connection = new SQLiteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                // Проверяем существование списка
+                var checkListQuery = "SELECT COUNT(1) FROM lists WHERE id = @list_id;";
+                await using (var checkListCmd = new SQLiteCommand(checkListQuery, connection, transaction))
+                {
+                    checkListCmd.Parameters.AddWithValue("@list_id", listId);
+                    var listExists = Convert.ToInt32(await checkListCmd.ExecuteScalarAsync()) > 0;
+                    if (!listExists)
+                        throw new InvalidOperationException($"List with ID {listId} does not exist.");
+                }
+
+                // Проверяем существование пользователя
+                var checkUserQuery = "SELECT COUNT(1) FROM users WHERE telegram_id = @telegramId;";
+                await using (var checkUserCmd = new SQLiteCommand(checkUserQuery, connection, transaction))
+                {
+                    checkUserCmd.Parameters.AddWithValue("@telegramId", telegramId);
+                    var userExists = Convert.ToInt32(await checkUserCmd.ExecuteScalarAsync()) > 0;
+                    if (!userExists)
+                        throw new InvalidOperationException($"User with Telegram ID {telegramId} does not exist.");
+                }
+
+                // Получаем user_id из telegram_id
+                var userId = await GetUserIdByTelegramIdAsync(telegramId);
+
+                // Получаем максимальную позицию в списке
+                var getMaxPositionQuery = @"
+                            SELECT IFNULL(MAX(position), 0)
+                            FROM list_members
+                            WHERE list_id = @list_id;
+                        ";
+                int newPosition = 1;
+                using (var maxPosCmd = new SQLiteCommand(getMaxPositionQuery, connection, transaction))
+                {
+                    maxPosCmd.Parameters.AddWithValue("@list_id", listId);
+                    var maxPosResult = await maxPosCmd.ExecuteScalarAsync();
+                    if (maxPosResult != null && int.TryParse(maxPosResult.ToString(), out int maxPosition))
+                    {
+                        newPosition = maxPosition + 1;
+                    }
+                }
+
+                // Проверяем, находится ли пользователь уже в списке
+                var checkMembershipQuery = @"
+                            SELECT position
+                            FROM list_members
+                            WHERE list_id = @list_id AND user_id = @user_id;
+                        ";
+                int? existingPosition = null;
+                using (var checkMembershipCmd = new SQLiteCommand(checkMembershipQuery, connection, transaction))
+                {
+                    checkMembershipCmd.Parameters.AddWithValue("@list_id", listId);
+                    checkMembershipCmd.Parameters.AddWithValue("@user_id", userId);
+                    var result = await checkMembershipCmd.ExecuteScalarAsync();
+                    if (result != null && int.TryParse(result.ToString(), out int pos))
+                    {
+                        existingPosition = pos;
+                    }
+                }
+
+                if (existingPosition.HasValue)
+                {
+                    // Пользователь уже в списке, обновляем позицию
+                    var updatePositionQuery = @"
+                                UPDATE list_members
+                                SET position = @newPosition
+                                WHERE list_id = @list_id AND user_id = @user_id;
+                            ";
+                    using (var updateCmd = new SQLiteCommand(updatePositionQuery, connection, transaction))
+                    {
+                        updateCmd.Parameters.AddWithValue("@newPosition", newPosition);
+                        updateCmd.Parameters.AddWithValue("@list_id", listId);
+                        updateCmd.Parameters.AddWithValue("@user_id", userId);
+                        await updateCmd.ExecuteNonQueryAsync();
+                    }
+                }
+                else
+                {
+                    // Пользователь не в списке, добавляем его
+                    var insertQuery = @"
+                               INSERT INTO list_members (list_id, user_id, position, inserted_at)
+                               VALUES (@list_id, @user_id, @position, @inserted_at);
+                           ";
+
+                    await using var insertCmd = new SQLiteCommand(insertQuery, connection, transaction);
+                    insertCmd.Parameters.AddWithValue("@list_id", listId);
+                    insertCmd.Parameters.AddWithValue("@user_id", userId);
+                    insertCmd.Parameters.AddWithValue("@position", newPosition);
+                    insertCmd.Parameters.AddWithValue("@inserted_at", DateTime.UtcNow);
+
+                    try
+                    {
+                        int rowsAffected = await insertCmd.ExecuteNonQueryAsync();
+                        if (rowsAffected <= 0)
+                        {
+                            // Не удалось добавить пользователя
+                            return false;
+                        }
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        await Console.Error.WriteLineAsync($"SQLite error: {ex.Message}");
+                        return false;
+                    }
+                }
+
+                // Подтверждаем транзакцию
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Откатываем транзакцию в случае ошибки
+                transaction.Rollback();
+                await Console.Error.WriteLineAsync($"Error in MoveUserToEndOfListAsync: {ex.Message}");
+                throw;
+            }
+            finally
+            {
+                await connection.CloseAsync();
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-namespace GroupBot.Commands;
+namespace GroupBot.Commands.Abstract;
 
 public class CommandFactory
 {

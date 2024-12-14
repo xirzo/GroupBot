@@ -1,4 +1,5 @@
 ﻿using GroupBot.Commands;
+using GroupBot.Commands.Abstract;
 using GroupBot.Database;
 using GroupBot.Lists;
 using GroupBot.Parser;
@@ -52,9 +53,7 @@ var requestContainer = new RequestsContainer();
 
 factory.Register("/start", new StartCommand());
 factory.Register("/addlist", new AddListCommand(sqliteHelper));
-factory.Register("/addtolist", new AddToListCommand(sqliteHelper));
-factory.Register("/shufflelist", new ShuffleListCommand(allLists));
-factory.Register("/removefromlist", new RemoveFromListCommand(allLists));
+factory.Register("/toend", new ToEndCommand(sqliteHelper));
 factory.Register("/list", new ListCommand(sqliteHelper));
 factory.Register("/lists", new ListsCommand(sqliteHelper));
 factory.Register("/swap", new SwapCommand(requestContainer, sqliteHelper));
