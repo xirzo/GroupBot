@@ -9,7 +9,6 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-var factory = new CommandFactory();
 TelegramBotClient bot = null!;
 
 IConfiguration config = new ConfigurationBuilder()
@@ -48,6 +47,8 @@ sqliteHelper.InsertParticipants(participants);
 var me = await bot.GetMe(cts.Token);
 
 var requestContainer = new RequestsContainer();
+
+var factory = new CommandFactory();
 
 factory.Register("/start", new StartCommand());
 factory.Register("/addlist", new AddListCommand(sqliteHelper));
