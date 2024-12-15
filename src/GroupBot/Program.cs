@@ -1,7 +1,6 @@
 ﻿using GroupBot.Commands;
 using GroupBot.Commands.Abstract;
 using GroupBot.Database;
-using GroupBot.Lists;
 using GroupBot.Parser;
 using GroupBot.Requests;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +9,6 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-var allLists = new List<ChatList>();
 var factory = new CommandFactory();
 TelegramBotClient bot = null!;
 
@@ -22,26 +20,26 @@ IConfiguration config = new ConfigurationBuilder()
 var botToken = config.GetSection("Tokens")["BotToken"];
 
 if (string.IsNullOrEmpty(botToken))
-    throw new ArgumentException("Bot token environment variable is missing");
+  throw new ArgumentException("Bot token environment variable is missing");
 
 using var cts = new CancellationTokenSource();
 
 bot = new TelegramBotClient(botToken, cancellationToken: cts.Token);
 
 if (bot == null)
-    throw new ArgumentException("Bot is null");
+  throw new ArgumentException("Bot is null");
 
 var dbPath = config.GetSection("Database")["Path"];
 
 if (string.IsNullOrEmpty(dbPath))
-    throw new ArgumentException("DB Path environment variable is missing");
+  throw new ArgumentException("DB Path environment variable is missing");
 
 var sqliteHelper = new DatabaseHelper(dbPath);
 
 var jsonFilePath = config.GetSection("Participants")["Path"];
 
 if (string.IsNullOrEmpty(jsonFilePath))
-    throw new ArgumentException("Participants JSON file path environment variable is missing");
+  throw new ArgumentException("Participants JSON file path environment variable is missing");
 
 var parser = new ParticipantsParser();
 var participants = parser.Parse(jsonFilePath);
@@ -70,19 +68,19 @@ await cts.CancelAsync();
 
 Task OnError(Exception exception, HandleErrorSource source)
 {
-    Console.WriteLine($"Error: {exception.Message}");
-    return Task.CompletedTask;
+  Console.WriteLine($"Error: {exception.Message}");
+  return Task.CompletedTask;
 }
 
 async Task OnMessage(Message msg, UpdateType type)
 {
-    var searchKey = msg.Text?.Split(' ')[0].Replace(" ", string.Empty);
+  var searchKey = msg.Text?.Split(' ')[0].Replace(" ", string.Empty);
 
-    if (searchKey == null) return;
+  if (searchKey == null) return;
 
-    var command = factory.GetCommand(searchKey);
+  var command = factory.GetCommand(searchKey);
 
-    if (command == null) return;
+  if (command == null) return;
 
-    await command.Execute(msg, bot);
+  await command.Execute(msg, bot);
 }
