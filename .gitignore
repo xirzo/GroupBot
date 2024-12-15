@@ -3,3 +3,4 @@ appsettings.json
 participants.json
 obj/
 bin/
+*.db
