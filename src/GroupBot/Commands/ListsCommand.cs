@@ -1,4 +1,7 @@
+using System.Text;
+using GroupBot.Commands.Abstract;
 using GroupBot.Lists;
+using Moq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -6,19 +9,26 @@ namespace GroupBot.Commands;
 
 public class ListsCommand : ICommand
 {
-    private readonly List<ChatList> _allLists;
+    private readonly Database.DatabaseHelper _db;
 
-    public ListsCommand(List<ChatList> allLists)
+    public ListsCommand(Database.DatabaseHelper db)
     {
-        _allLists = allLists;
+        _db = db;
     }
 
     public async Task Execute(Message message, TelegramBotClient bot)
     {
-        if (message.Text == "/lists")
+        if (message.Text == "/lists" == false)
         {
-            var allLists = string.Join("\n", _allLists.Select(l => l.Name));
-            await bot.SendMessage(message.Chat.Id, allLists);
+            await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /lists");
+            return;
         }
+
+        var lists = await _db.GetAllLists();
+
+        var text = new StringBuilder();
+        text.Append($"📝 Списки:\n\n");
+        text.Append(string.Join("\n", lists.Select(l => l.Name)));
+        await bot.SendMessage(message.Chat.Id, text.ToString());
     }
 }

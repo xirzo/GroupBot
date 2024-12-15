@@ -1,5 +1,5 @@
 using System.Text;
-using GroupBot.Lists;
+using GroupBot.Commands.Abstract;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -7,33 +7,42 @@ namespace GroupBot.Commands;
 
 public class ListCommand : ICommand
 {
-    private readonly List<ChatList> _allLists;
+  private readonly Database.DatabaseHelper _db;
 
-    public ListCommand(List<ChatList> allLists)
+  public ListCommand(Database.DatabaseHelper db)
+  {
+    _db = db;
+  }
+
+  public async Task Execute(Message message, TelegramBotClient bot)
+  {
+    var words = message.Text?.Split(' ');
+
+    if (words is ["/list", _] == false)
     {
-        _allLists = allLists;
+      await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /list <название списка>",
+          replyParameters: new ReplyParameters { MessageId = message.MessageId });
+      return;
     }
 
-    public async Task Execute(Message message, TelegramBotClient bot)
+    var lists = await _db.GetAllLists();
+
+    var list = lists.First(l => l.Name == words[1]);
+
+    var users = await _db.GetAllUsersInList(list.Id);
+
+    var text = new StringBuilder();
+
+    text.Append($"📝 Список: {list.Name}\n\n");
+
+    foreach (var user in users)
     {
-        var words = message.Text?.Split(' ');
-
-        if (words is ["/list", _])
-        {
-            var list = _allLists.Find(l => l.Name == words[1]);
-
-            if (list == null) return;
-
-            var text = new StringBuilder();
-
-            text.Append($"📝 Список: {list.Name}\n\n");
-
-            foreach (var participant in list.List) text.Append(participant.Name + "\n");
-
-            await bot.SendMessage(
-                message.Chat.Id,
-                text.ToString()
-            );
-        }
+      text.Append(user.Position + ". " + user.Name + "\n");
     }
+
+    await bot.SendMessage(
+        message.Chat.Id,
+        text.ToString()
+    );
+  }
 }

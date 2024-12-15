@@ -1,35 +1,19 @@
-using GroupBot.Lists;
-using GroupBot.Shared;
+using GroupBot.Commands.Abstract;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace GroupBot.Commands;
 
-public class AddListCommand : ICommand
+public class AddListCommand(Database.DatabaseHelper db) : ICommand
 {
-    private readonly List<ChatList> _allLists;
+  public async Task Execute(Message message, TelegramBotClient bot)
+  {
+    var words = message.Text?.Split(' ');
 
-    public AddListCommand(List<ChatList> allLists)
+    if (words is ["/addlist", _])
     {
-        _allLists = allLists;
+      var id = db.CreateListAndShuffle(words[1]);
+      await bot.SendMessage(message.Chat.Id, $"Создан новый список с названием {words[1]} и id: {id}");
     }
-
-    public async Task Execute(Message message, TelegramBotClient bot)
-    {
-        var words = message.Text?.Split(' ');
-
-        if (words is ["/addlist", _])
-        {
-            if (_allLists.Exists(l => l.Name == words[1])) return;
-
-            var newList = new ChatList(words[1]);
-
-            for (var i = 0; i < ParticipantsContainer.Participants.Count; i++)
-                newList.Add(ParticipantsContainer.Participants[i]);
-
-            newList.Shuffle();
-            _allLists.Add(newList);
-            await bot.SendMessage(message.Chat.Id, $"Создан новый список с названием {newList.Name}");
-        }
-    }
+  }
 }
