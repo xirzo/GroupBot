@@ -1,6 +1,8 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/UnitTesting/CreateUnitTestDialog/TestProjectMapping/=9BAD133C_002DC9EB_002D45FD_002DA9AB_002D94F0F3A14D5D/@EntryIndexedValue">9BAD133C-C9EB-45FD-A9AB-94F0F3A14D5D</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/CreateUnitTestDialog/TestTemplateMapping/=xUnit/@EntryIndexedValue">33ff99d8-b1ad-4ed5-a4fd-376b97c2c841</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a2974ec6_002Dc2e7_002D4e21_002Da0da_002D28539c5b7c62/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from StartCommandTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;ProjectFile&gt;E7C37332-BC91-4801-B2B3-7BE2AD1D9B99/f:StartCommandTests.cs&lt;/ProjectFile&gt;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a2974ec6_002Dc2e7_002D4e21_002Da0da_002D28539c5b7c62/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from StartCommandTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;ProjectFile&gt;E7C37332-BC91-4801-B2B3-7BE2AD1D9B99/f:StartCommandTests.cs&lt;/ProjectFile&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	
+	</wpf:ResourceDictionary>
