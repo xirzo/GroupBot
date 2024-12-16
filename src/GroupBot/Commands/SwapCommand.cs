@@ -55,6 +55,12 @@ public class SwapCommand : ICommand
         }
 
         var lists = await _db.GetAllLists();
+        
+        if (lists.Count == 0)
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
+            return;
+        } 
 
         var list = lists.First(l => l.Name == words[1]);
 

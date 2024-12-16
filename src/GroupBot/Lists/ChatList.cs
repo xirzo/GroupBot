@@ -27,6 +27,7 @@ public class ChatList
         {
             await _db.SwapUsersInListAsync(Id, userDbId, targetDbId);
         }
+        
         catch (Exception e)
         {
             Console.WriteLine($"Error: {e}");

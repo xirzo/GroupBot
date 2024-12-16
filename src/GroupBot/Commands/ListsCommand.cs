@@ -23,8 +23,14 @@ public class ListsCommand : ICommand
             await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /lists");
             return;
         }
-
+        
         var lists = await _db.GetAllLists();
+        
+        if (lists.Count == 0)
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
+            return;
+        } 
 
         var text = new StringBuilder();
         text.Append($"📝 Списки:\n\n");
