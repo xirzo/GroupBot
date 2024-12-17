@@ -1,6 +1,6 @@
 # GroupBot
 
-GroupBot is a Telegram bot designed to create lists of group participants.
+GroupBot is a Telegram bot designed to manage lists of group participants.
 
 ## Features
 
@@ -15,42 +15,74 @@ GroupBot is a Telegram bot designed to create lists of group participants.
 
 ## Installation
 
+### Using Docker
+
 1. Clone the repository:
-   ```sh
-   git clone https://github.com/xirzo/GroupBot.git
-   cd GroupBot
-   ```
+    ```sh
+    git clone https://github.com/xirzo/GroupBot.git
+    cd GroupBot
+    ```
+
+2. Build the Docker image:
+    ```sh
+    docker build -t groupbot .
+    ```
+
+3. Create necessary configuration files:
+
+    - Create a `participants.json` file and add all the members of your group.
+    - Create an `appsettings.json` file in the project root with the following structure:
+      ```json
+      {
+        "Tokens": {
+          "BotToken": "YOUR_TELEGRAM_BOT_TOKEN"
+        },
+        "Database": {
+          "Path": "/app/data/database.db"
+        },
+        "Participants": {
+          "Path": "/app/data/participants.json"
+        }
+      }
+      ```
+
+4. Run the Docker container:
+    ```sh
+    docker run -d -p 8080:80 --name groupbot -v bot_data:/app/data groupbot
+    ```
+
+### Using .NET CLI
+
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/xirzo/GroupBot.git
+    cd GroupBot
+    ```
 
 2. Install the required dependencies:
-   ```sh
-   dotnet restore
-   ```
+    ```sh
+    dotnet restore
+    ```
 
 3. Set up the configuration files:
 
-   - Create a `participants.json` file and put all the members of your group
-
-   - Create an `appsettings.json` file in the project root with the following structure:
-     ```json
-     {
-       "Tokens": {
-         "BotToken": "YOUR_TELEGRAM_BOT_TOKEN"
-       },
-       "Database": {
-         "Path": "path/to/your/database.db"
-       },
-       "Participants": {
-         "Path": "path/to/participants.json"
-       }
-     }
-     ```
+    - Create a `participants.json` file and add all the members of your group.
+    - Create an `appsettings.json` file in the project root with the following structure:
+      ```json
+      {
+        "Tokens": {
+          "BotToken": "YOUR_TELEGRAM_BOT_TOKEN"
+        },
+        "Database": {
+          "Path": "path/to/your/database.db"
+        },
+        "Participants": {
+          "Path": "path/to/participants.json"
+        }
+      }
+      ```
 
 4. Run the bot:
-   ```sh
-   dotnet run
-   ```
-
-## Usage
-
-1. Start the bot by running the installation steps above.
-2. Interact with the bot on Telegram using the registered commands.
+    ```sh
+    dotnet run
+    ```

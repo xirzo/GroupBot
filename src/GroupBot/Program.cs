@@ -13,56 +13,57 @@ namespace GroupBot;
 
 class Program
 {
-    private static void Main(string[] args)
-    {
-        var host = CreateHostBuilder(args).Build();
+  private static async Task Main(string[] args)
+  {
+    var host = CreateHostBuilder(args).Build();
 
-        var botService = host.Services.GetRequiredService<IBotService>();
-        var commandService = host.Services.GetRequiredService<ICommandService>();
-        var databaseService = host.Services.GetRequiredService<IDatabaseService>();
+    var botService = host.Services.GetRequiredService<IBotService>();
+    var commandService = host.Services.GetRequiredService<ICommandService>();
+    var databaseService = host.Services.GetRequiredService<IDatabaseService>();
 
-        databaseService.InitializeDatabase();
-        commandService.RegisterCommands();
-        botService.StartBot();
+    databaseService.InitializeDatabase();
+    commandService.RegisterCommands();
 
-        Console.WriteLine("Bot is running... Press Enter to terminate");
-        Console.ReadLine();
+    await botService.StartBot();
 
-        host.StopAsync();
-    }
+    Console.WriteLine("Bot is running... Press Enter to terminate");
+    Console.ReadLine();
 
-    private static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureServices((hostContext, services) =>
-            {
-                 
-                services.AddSingleton<ICommandService, CommandService>();
-                services.AddSingleton<IDatabaseService, DatabaseService>();
-                services.AddSingleton<IBotService, BotService>();
+    await host.RunAsync();
+  }
 
-                services.AddSingleton<RequestsContainer>();
-                services.AddSingleton<CommandFactory>();
+  private static IHostBuilder CreateHostBuilder(string[] args) =>
+      Host.CreateDefaultBuilder(args)
+          .ConfigureServices((hostContext, services) =>
+          {
 
-                services.AddSingleton<DatabaseHelper>(provider =>
-                {
-                    var config = provider.GetRequiredService<IConfiguration>();
-                    var dbPath = config.GetSection("Database")["Path"];
-                    
-                    if (string.IsNullOrEmpty(dbPath))
-                        throw new ArgumentException("DB Path environment variable is missing");
+            services.AddSingleton<ICommandService, CommandService>();
+            services.AddSingleton<IDatabaseService, DatabaseService>();
+            services.AddSingleton<IBotService, BotService>();
 
-                    return new DatabaseHelper(dbPath);
-                });
+            services.AddSingleton<RequestsContainer>();
+            services.AddSingleton<CommandFactory>();
 
-                services.AddSingleton<TelegramBotClient>(provider =>
-                {
-                    var config = provider.GetRequiredService<IConfiguration>();
-                    var botToken = config.GetSection("Tokens")["BotToken"];
-                    
-                    if (string.IsNullOrEmpty(botToken))
-                        throw new ArgumentException("Bot token environment variable is missing");
+            services.AddSingleton<DatabaseHelper>(provider =>
+              {
+                var config = provider.GetRequiredService<IConfiguration>();
+                var dbPath = config.GetSection("Database")["Path"];
 
-                    return new TelegramBotClient(botToken);
-                });
-            });
+                if (string.IsNullOrEmpty(dbPath))
+                  throw new ArgumentException("DB Path environment variable is missing");
+
+                return new DatabaseHelper(dbPath);
+              });
+
+            services.AddSingleton<TelegramBotClient>(provider =>
+              {
+                var config = provider.GetRequiredService<IConfiguration>();
+                var botToken = config.GetSection("Tokens")["BotToken"];
+
+                if (string.IsNullOrEmpty(botToken))
+                  throw new ArgumentException("Bot token environment variable is missing");
+
+                return new TelegramBotClient(botToken);
+              });
+          });
 }
