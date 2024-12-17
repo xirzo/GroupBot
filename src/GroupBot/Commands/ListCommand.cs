@@ -1,5 +1,6 @@
 using System.Text;
 using GroupBot.Commands.Abstract;
+using GroupBot.Services.Database;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -7,9 +8,9 @@ namespace GroupBot.Commands;
 
 public class ListCommand : ICommand
 {
-  private readonly Database.DatabaseHelper _db;
+  private readonly IDatabaseService _db;
 
-  public ListCommand(Database.DatabaseHelper db)
+  public ListCommand(IDatabaseService db)
   {
     _db = db;
   }
@@ -26,24 +27,24 @@ public class ListCommand : ICommand
     }
 
     var lists = await _db.GetAllLists();
-    
+
     if (lists.Count == 0)
     {
       await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
       return;
-    } 
+    }
 
     var list = lists.First(l => l.Name == words[1]);
 
-    var users = await _db.GetAllUsersInList(list.Id);
+    var participants = await _db.GetAllParticipantsInList(list.Id);
 
     var text = new StringBuilder();
 
     text.Append($"📝 Список: {list.Name}\n\n");
 
-    foreach (var user in users)
+    foreach (var paricipant in participants)
     {
-      text.Append(user.Position + ". " + user.Name + "\n");
+      text.Append(paricipant.Position + ". " + paricipant.Name + "\n");
     }
 
     await bot.SendMessage(

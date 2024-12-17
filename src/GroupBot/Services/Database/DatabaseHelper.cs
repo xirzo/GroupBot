@@ -3,7 +3,7 @@ using System.Data.SQLite;
 using GroupBot.Lists;
 using GroupBot.Parser;
 
-namespace GroupBot.Database
+namespace GroupBot.Services.Database
 {
   public class DatabaseHelper
   {
@@ -341,7 +341,7 @@ namespace GroupBot.Database
 
       while (await reader.ReadAsync())
       {
-        var chatList = new ChatList(reader.GetString(1), reader.GetInt64(0), this);
+        var chatList = new ChatList(reader.GetString(1), reader.GetInt64(0));
         result.Add(chatList);
       }
 
@@ -354,7 +354,7 @@ namespace GroupBot.Database
     /// <param name="telegramId">The Telegram ID of the user.</param>
     /// <returns>A task representing the asynchronous operation, with the user's ID as the result.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the user does not exist.</exception>
-    public async Task<long> GetUserIdByTelegramIdAsync(long telegramId)
+    public async Task<long> GetParticipantIdByTelegramId(long telegramId)
     {
       await using var connection = new SQLiteConnection(_connectionString);
       await connection.OpenAsync();
@@ -401,7 +401,7 @@ namespace GroupBot.Database
           throw new InvalidOperationException($"User with Telegram ID {telegramId} does not exist.");
       }
 
-      var userId = await GetUserIdByTelegramIdAsync(telegramId);
+      var userId = await GetParticipantIdByTelegramId(telegramId);
 
       var checkMembershipQuery = @"
                 SELECT COUNT(1)
@@ -462,7 +462,7 @@ namespace GroupBot.Database
     /// <param name="targetDbId">The database ID of the second user.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown if either user is not found in the list.</exception>
-    public async Task SwapUsersInListAsync(long listId, long userDbId, long targetDbId)
+    public async Task SwapParticipantsInList(long listId, long userDbId, long targetDbId)
     {
       await using var connection = new SQLiteConnection(_connectionString);
       await connection.OpenAsync();
@@ -623,7 +623,7 @@ namespace GroupBot.Database
             throw new InvalidOperationException($"User with Telegram ID {telegramId} does not exist.");
         }
 
-        var userId = await GetUserIdByTelegramIdAsync(telegramId);
+        var userId = await GetParticipantIdByTelegramId(telegramId);
 
         var getMaxPositionQuery = @"
                     SELECT IFNULL(MAX(position), 0)

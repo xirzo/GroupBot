@@ -1,5 +1,4 @@
 ﻿using GroupBot.Commands.Abstract;
-using GroupBot.Database;
 using GroupBot.Requests;
 using GroupBot.Services.Bot;
 using GroupBot.Services.Command;
@@ -36,24 +35,12 @@ class Program
       Host.CreateDefaultBuilder(args)
           .ConfigureServices((hostContext, services) =>
           {
-
             services.AddSingleton<ICommandService, CommandService>();
             services.AddSingleton<IDatabaseService, DatabaseService>();
             services.AddSingleton<IBotService, BotService>();
 
             services.AddSingleton<RequestsContainer>();
             services.AddSingleton<CommandFactory>();
-
-            services.AddSingleton<DatabaseHelper>(provider =>
-              {
-                var config = provider.GetRequiredService<IConfiguration>();
-                var dbPath = config.GetSection("Database")["Path"];
-
-                if (string.IsNullOrEmpty(dbPath))
-                  throw new ArgumentException("DB Path environment variable is missing");
-
-                return new DatabaseHelper(dbPath);
-              });
 
             services.AddSingleton<TelegramBotClient>(provider =>
               {

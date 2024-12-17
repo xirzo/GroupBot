@@ -1,36 +1,28 @@
-using GroupBot.Parser;
+using GroupBot.Services.Database;
 
 namespace GroupBot.Lists;
 
 public class ChatList
 {
-    public string Name { get; }
-    public long Id { get; }
-    private readonly Database.DatabaseHelper _db;
+  public string Name { get; }
+  public long Id { get; }
 
-    public ChatList(string name, long id, Database.DatabaseHelper db)
+  public ChatList(string name, long id)
+  {
+    Name = name;
+    Id = id;
+  }
+
+  public async void Swap(long userDbId, long targetDbId, IDatabaseService db)
+  {
+    try
     {
-        Name = name;
-        Id = id;
-        _db = db;
+      await db.SwapParticipantsInList(Id, userDbId, targetDbId);
     }
 
-    public async Task Add(Participant participant)
+    catch (Exception e)
     {
-        await _db.CreateUser(participant.Id, participant.Name);
-        await _db.TryAddUserToList(participant.Id, Id);
+      Console.WriteLine($"Error: {e}");
     }
-
-    public async void Swap(long userDbId, long targetDbId)
-    {
-        try
-        {
-            await _db.SwapUsersInListAsync(Id, userDbId, targetDbId);
-        }
-        
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error: {e}");
-        }
-    }
+  }
 }
