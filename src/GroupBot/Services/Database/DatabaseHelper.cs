@@ -218,15 +218,15 @@ namespace GroupBot.Services.Database
     /// </summary>
     /// <param name="listName">The name of the new list.</param>
     /// <returns>The ID of the newly created list.</returns>
-    public long CreateListAndShuffle(string listName)
+    public async Task<long> CreateListAndShuffle(string listName)
     {
       if (string.IsNullOrWhiteSpace(listName))
         throw new ArgumentException("List name cannot be null or empty.", nameof(listName));
 
-      using var connection = new SQLiteConnection(_connectionString);
+      await using var connection = new SQLiteConnection(_connectionString);
       connection.Open();
 
-      using var transaction = connection.BeginTransaction();
+      await using var transaction = connection.BeginTransaction();
 
       try
       {
@@ -261,7 +261,7 @@ namespace GroupBot.Services.Database
                     VALUES (@listId, @userId, @position);
                 ";
 
-        using (var insertMemberCmd = new SQLiteCommand(insertMemberQuery, connection, transaction))
+        await using (var insertMemberCmd = new SQLiteCommand(insertMemberQuery, connection, transaction))
         {
           var listIdParam = insertMemberCmd.Parameters.Add("@listId", DbType.Int64);
           var userIdParam = insertMemberCmd.Parameters.Add("@userId", DbType.Int32);

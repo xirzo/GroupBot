@@ -9,7 +9,7 @@ public interface IDatabaseService
 
   Task<List<ChatList>> GetAllLists();
 
-  long CreateListAndShuffle(string listName);
+  Task<long> CreateListAndShuffle(string listName);
 
   Task<List<Participant>> GetAllParticipantsInList(long id);
 

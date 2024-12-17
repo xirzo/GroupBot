@@ -38,9 +38,9 @@ public class DatabaseService : IDatabaseService
     return await _databaseHelper.GetAllLists();
   }
 
-  public long CreateListAndShuffle(string listName)
+  public async Task<long> CreateListAndShuffle(string listName)
   {
-    return _databaseHelper.CreateListAndShuffle(listName);
+    return async _databaseHelper.CreateListAndShuffle(listName);
   }
 
   public async Task<List<Participant>> GetAllParticipantsInList(long id)
