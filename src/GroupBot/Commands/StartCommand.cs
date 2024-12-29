@@ -18,10 +18,6 @@ public class StartCommand : ICommand
 
     public async Task Execute(Message message, TelegramBotClient bot)
     {
-        var admins = await _databaseService.GetAllAdmins();
-        
-        foreach (var admin in admins) await bot.SendMessage(message.Chat.Id, admin.Name);
-
         if (message.Chat.Type == ChatType.Private)
         {
             var lists = await _databaseService.GetAllLists();
