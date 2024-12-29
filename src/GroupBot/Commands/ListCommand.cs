@@ -42,7 +42,13 @@ public class ListCommand : ICommand
 
         text.Append($"📝 Список: {list.Name}\n\n");
 
-        foreach (var paricipant in participants) text.Append(paricipant.Position + ". " + paricipant.Name + "\n");
+        var position = 1;
+
+        foreach (var participant in participants)
+        {
+            text.Append(position + ". " + participant.Name + "\n");
+            position++;
+        }
 
         await bot.SendMessage(
             message.Chat.Id,
