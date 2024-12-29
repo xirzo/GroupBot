@@ -1,37 +1,39 @@
 # GroupBot
 
-GroupBot is a Telegram bot designed to manage lists of group participants.
+GroupBot — это Telegram-бот, предназначенный для управления списками участников группы.
 
-## Features
+## Особенности
 
-- **/start**: Start interaction with the bot.
-- **/addlist**: Add a new list of participants.
-- **/toend**: Move a participant to the end of the list.
-- **/list**: Display the list of participants.
-- **/lists**: Display all lists of participants.
-- **/swap**: Swap the position of participants.
-- **Принять**: Accept a swap request.
-- **Отказаться**: Decline a swap request.
+- **/start**: Начать взаимодействие с ботом.
+- **/addlist**: Добавить новый список участников.
+- **/toend**: Переместить участника в конец списка.
+- **/list**: Показать список участников.
+- **/lists**: Показать все списки участников.
+- **/swap**: Поменять местами участников.
+- **Принять**: Принять запрос на обмен.
+- **Отказаться**: Отклонить запрос на обмен.
+- **/deletelist**: Удалить список участников. (Новое)
+- **/start**: Открыть списки в личных сообщениях. (Новое)
+- **/addlist**: Только администраторы могут использовать команду. (Новое)
 
-## Installation
+## Установка
 
-### Using Docker
+### Через Docker
 
-1. Clone the repository:
+1. Клонируйте репозиторий:
     ```sh
     git clone https://github.com/xirzo/GroupBot.git
     cd GroupBot
     ```
 
-2. Build the Docker image:
+2. Соберите:
     ```sh
     docker build -t groupbot .
     ```
 
-3. Create necessary configuration files:
-
-    - Create a `participants.json` file and add all the members of your group.
-    - Create an `appsettings.json` file in the project root with the following structure:
+3. Создайте конфигурационные файлы:
+    - Создайте файл `participants.json` и добавьте всех участников вашей группы.
+    - Создайте файл `appsettings.json` в корне проекта со следующей структурой:
       ```json
       {
         "Tokens": {
@@ -46,28 +48,27 @@ GroupBot is a Telegram bot designed to manage lists of group participants.
       }
       ```
 
-4. Run the Docker container:
+4. Запустите контейнер:
     ```sh
     docker run -d -p 8080:80 --name groupbot -v bot_data:/app/data groupbot
     ```
 
-### Using .NET CLI
+### Через .NET CLI
 
-1. Clone the repository:
+1. Клонируйте репозиторий:
     ```sh
     git clone https://github.com/xirzo/GroupBot.git
     cd GroupBot
     ```
 
-2. Install the required dependencies:
+2. Установите зависимости:
     ```sh
     dotnet restore
     ```
 
-3. Set up the configuration files:
-
-    - Create a `participants.json` file and add all the members of your group.
-    - Create an `appsettings.json` file in the project root with the following structure:
+3. Настройте конфигурационные файлы:
+    - Создайте файл `participants.json` и добавьте всех участников вашей группы.
+    - Создайте файл `appsettings.json` в корне проекта со следующей структурой:
       ```json
       {
         "Tokens": {
@@ -82,7 +83,7 @@ GroupBot is a Telegram bot designed to manage lists of group participants.
       }
       ```
 
-4. Run the bot:
+4. Запустите бота:
     ```sh
     dotnet run
     ```
