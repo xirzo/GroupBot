@@ -753,4 +753,40 @@ public class DatabaseHelper
             await connection.CloseAsync();
         }
     }
+
+    public async Task RemoveList(long listId)
+    {
+        await using var connection = new SQLiteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var transaction = connection.BeginTransaction();
+
+        try
+        {
+            var deleteMembersQuery = "DELETE FROM list_members WHERE list_id = @list_id;";
+            await using (var deleteMembersCmd = new SQLiteCommand(deleteMembersQuery, connection, transaction))
+            {
+                deleteMembersCmd.Parameters.AddWithValue("@list_id", listId);
+                await deleteMembersCmd.ExecuteNonQueryAsync();
+            }
+
+            var deleteListQuery = "DELETE FROM lists WHERE id = @list_id;";
+            await using (var deleteListCmd = new SQLiteCommand(deleteListQuery, connection, transaction))
+            {
+                deleteListCmd.Parameters.AddWithValue("@list_id", listId);
+                await deleteListCmd.ExecuteNonQueryAsync();
+            }
+
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
+    }
 }

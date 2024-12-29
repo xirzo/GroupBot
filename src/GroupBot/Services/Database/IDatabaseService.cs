@@ -19,4 +19,5 @@ public interface IDatabaseService
 
     Task SwapParticipantsInList(long id, long userDbId, long targetDbId);
     Task<List<Participant>> GetAllAdmins();
+    Task RemoveList(long listId);
 }

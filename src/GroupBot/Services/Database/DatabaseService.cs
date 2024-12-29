@@ -71,4 +71,9 @@ public class DatabaseService : IDatabaseService
         _admins = await _databaseHelper.GetAllAdmins();
         return _admins;
     }
+
+    public async Task RemoveList(long listId)
+    {
+        await _databaseHelper.RemoveList(listId);
+    }
 }

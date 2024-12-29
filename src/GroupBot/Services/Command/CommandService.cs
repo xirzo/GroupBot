@@ -25,6 +25,7 @@ public class CommandService : ICommandService
         _factory.Register("/toend", new ToEndCommand(_database));
         _factory.Register("/list", new ListCommand(_database));
         _factory.Register("/lists", new ListsCommand(_database));
+        _factory.Register("/removelist", new RemoveListCommand(_database));
         _factory.Register("/swap", new SwapCommand(_requestsContainer, _database));
         _factory.Register("Принять", new SwapAcceptCommand(_requestsContainer, _database));
         _factory.Register("Отказаться", new SwapDeclineCommand(_requestsContainer));
