@@ -61,4 +61,9 @@ public class DatabaseService : IDatabaseService
     {
         await _databaseHelper.SwapParticipantsInList(id, userDbId, targetDbId);
     }
+
+    public async Task<List<Participant>> GetAllAdmins()
+    {
+        return await _databaseHelper.GetAllAdmins();
+    }
 }
