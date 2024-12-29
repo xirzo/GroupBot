@@ -8,6 +8,7 @@ public class DatabaseService : IDatabaseService
 {
     private readonly IConfiguration _config;
     private readonly DatabaseHelper _databaseHelper;
+    private List<Participant> _admins;
 
     public DatabaseService(IConfiguration config)
     {
@@ -17,6 +18,7 @@ public class DatabaseService : IDatabaseService
             throw new ArgumentException("DB Path environment variable is missing");
 
         _databaseHelper = new DatabaseHelper(dbPath);
+        _admins = [];
         _config = config;
     }
 
@@ -64,6 +66,9 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<Participant>> GetAllAdmins()
     {
-        return await _databaseHelper.GetAllAdmins();
+        if (_admins.Count > 0) return _admins;
+
+        _admins = await _databaseHelper.GetAllAdmins();
+        return _admins;
     }
 }
