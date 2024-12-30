@@ -9,6 +9,7 @@ public class DatabaseService : IDatabaseService
     private readonly IConfiguration _config;
     private readonly DatabaseHelper _databaseHelper;
     private List<Participant> _admins;
+    private List<ChatList> _lists;
 
     public DatabaseService(IConfiguration config)
     {
@@ -19,6 +20,7 @@ public class DatabaseService : IDatabaseService
 
         _databaseHelper = new DatabaseHelper(dbPath);
         _admins = [];
+        _lists = [];
         _config = config;
     }
 
@@ -36,12 +38,16 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<ChatList>> GetAllLists()
     {
+        if (_lists.Count > 0) return _lists;
+
         return await _databaseHelper.GetAllLists();
     }
 
     public async Task<long> CreateListAndShuffle(string listName)
     {
-        return await _databaseHelper.CreateListAndShuffle(listName);
+        var id = await _databaseHelper.CreateListAndShuffle(listName);
+        _lists = await _databaseHelper.GetAllLists();
+        return id;
     }
 
     public async Task<List<Participant>> GetAllParticipantsInList(long id)

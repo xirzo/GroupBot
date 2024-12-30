@@ -41,10 +41,4 @@ public class UpdateHandler : IUpdateHandler
     {
         throw new NotImplementedException();
     }
-
-    public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
-    {
-        Console.WriteLine($"Error: {exception.Message}");
-        return Task.CompletedTask;
-    }
 }
