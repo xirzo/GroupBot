@@ -43,7 +43,7 @@ public class AddListCommand : ICommand
             return;
         }
 
-        var id = _db.CreateListAndShuffle(words[1]);
+        var id = await _db.CreateListAndShuffle(words[1]);
         await bot.SendMessage(message.Chat.Id, $"Создан новый список с названием {words[1]} и id: {id}");
     }
 }
