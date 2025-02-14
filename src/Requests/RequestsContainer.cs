@@ -6,7 +6,10 @@ public class RequestsContainer
 
     public void Add(PendingRequest request)
     {
-        if (_pendingRequests.Contains(request)) return;
+        if (_pendingRequests.Contains(request))
+        {
+            return;
+        }
 
         _pendingRequests.Add(request);
     }
