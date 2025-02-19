@@ -8,27 +8,80 @@ namespace GroupBot.Library.Services.Database;
 [DbConfigurationType(typeof(SQLiteConfiguration))]
 public sealed class BotDbContext : DbContext
 {
+    private readonly string _dbPath;
+
     public BotDbContext(string dbPath) 
         : base(CreateConnection(dbPath), true)
     {
+        _dbPath = dbPath;
         Users = Set<User>();
         Lists = Set<ChatList>();
         ListMembers = Set<ListMember>();
         Admins = Set<Admin>();
-
+        
         System.Data.Entity.Database.SetInitializer<BotDbContext>(null);
     }
 
     private static SQLiteConnection CreateConnection(string dbPath)
     {
-        return new SQLiteConnection
+        var builder = new SQLiteConnectionStringBuilder
         {
-            ConnectionString = new SQLiteConnectionStringBuilder
-            {
-                DataSource = dbPath,
-                ForeignKeys = true
-            }.ConnectionString
+            DataSource = dbPath,
+            ForeignKeys = true
         };
+        
+        return new SQLiteConnection(builder.ConnectionString);
+    }
+
+    public void EnsureDatabaseCreated()
+    {
+        if (!File.Exists(_dbPath))
+        {
+            SQLiteConnection.CreateFile(_dbPath);
+        }
+
+        using var connection = new SQLiteConnection(Database.Connection.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                telegram_id INTEGER NOT NULL UNIQUE,
+                full_name TEXT NOT NULL,
+                created_at DATETIME NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS lists (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                list_name TEXT NOT NULL,
+                created_at DATETIME NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS list_members (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                list_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                position INTEGER NOT NULL,
+                inserted_at DATETIME NOT NULL,
+                FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+                UNIQUE (list_id, position),
+                UNIQUE (list_id, user_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS admins (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id);
+            CREATE INDEX IF NOT EXISTS idx_list_members_list_position ON list_members(list_id, position);
+            CREATE INDEX IF NOT EXISTS idx_list_members_list_user ON list_members(list_id, user_id);
+        ";
+
+        command.ExecuteNonQuery();
     }
 
     public DbSet<User> Users { get; init; }

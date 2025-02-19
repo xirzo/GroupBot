@@ -12,8 +12,9 @@ public class SQLiteConfiguration : DbConfiguration
         SetProviderFactory("System.Data.SQLite", SQLiteFactory.Instance);
         SetProviderFactory("System.Data.SQLite.EF6", SQLiteProviderFactory.Instance);
         
-        SetProviderServices("System.Data.SQLite", (DbProviderServices)SQLiteProviderFactory.Instance.GetService(typeof(DbProviderServices)));
+        var providerServices = (DbProviderServices)SQLiteProviderFactory.Instance.GetService(typeof(DbProviderServices));
         
-        SetDefaultConnectionFactory(new SQLiteConnectionFactory());
+        SetProviderServices("System.Data.SQLite", providerServices);
+        SetProviderServices("System.Data.SQLite.EF6", providerServices);
     }
 }

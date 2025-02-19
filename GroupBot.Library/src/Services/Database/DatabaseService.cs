@@ -29,6 +29,8 @@ public class DatabaseService : IDatabaseService, IDisposable
 
     public void InitializeDatabase()
     {
+        _dbContext.EnsureDatabaseCreated();
+
         const string jsonFilePath = "participants.json";
 
         if (!File.Exists(jsonFilePath))
@@ -41,18 +43,31 @@ public class DatabaseService : IDatabaseService, IDisposable
         if (participants == null)
             throw new ArgumentException($"There are no participants in JSON file: {jsonFilePath}");
 
-        foreach (var participant in participants)
+        using var transaction = _dbContext.Database.BeginTransaction();
+        try
         {
-            var user = new User
+            foreach (var participant in participants)
             {
-                TelegramId = participant.Id,
-                FullName = participant.Name,
-                CreatedAt = DateTime.UtcNow
-            };
+                var user = new User
+                {
+                    TelegramId = participant.Id,
+                    FullName = participant.Name,
+                    CreatedAt = DateTime.UtcNow
+                };
 
-            if (!_dbContext.Users.Any(u => u.TelegramId == participant.Id)) _dbContext.Users.Add(user);
+                if (!_dbContext.Users.Any(u => u.TelegramId == participant.Id)) 
+                    _dbContext.Users.Add(user);
+            }
+
+            _dbContext.SaveChanges();
+            transaction.Commit();
         }
-
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+        
         _dbContext.SaveChanges();
     }
 
