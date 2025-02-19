@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
-        services.ConfigureServices(hostContext.Configuration);
+        services.ConfigureServices();
     })
     .Build();
 

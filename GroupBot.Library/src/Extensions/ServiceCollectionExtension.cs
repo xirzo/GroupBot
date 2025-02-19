@@ -11,7 +11,7 @@ namespace GroupBot.Library.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
+        public static void ConfigureServices(this IServiceCollection services)
         {
             services.AddSingleton<ICommandService, CommandService>();
             services.AddSingleton<IDatabaseService, DatabaseService>();
@@ -20,16 +20,14 @@ namespace GroupBot.Library.Extensions
             services.AddSingleton<RequestsContainer>();
             services.AddSingleton<CommandFactory>();
 
-            var botToken = configuration.GetSection("Tokens")["BotToken"];
+            var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
 
             if (string.IsNullOrEmpty(botToken))
             {
-                throw new ArgumentException("Bot token is missing in the configuration.");
+                throw new ArgumentException("Bot token is missing");
             }
 
             services.AddSingleton(new TelegramBotClient(botToken));
-
-            return services;
         }
     }
 }
