@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroupBot.Program", "GroupBot.Program\GroupBot.Program.csproj", "{B9F92712-0512-4018-9318-E09934070E42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroupBot.Library", "GroupBot.Library\GroupBot.Library.csproj", "{BF138612-7EB6-4B0B-810B-89E6DB095D44}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B9F92712-0512-4018-9318-E09934070E42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9F92712-0512-4018-9318-E09934070E42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9F92712-0512-4018-9318-E09934070E42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9F92712-0512-4018-9318-E09934070E42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF138612-7EB6-4B0B-810B-89E6DB095D44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF138612-7EB6-4B0B-810B-89E6DB095D44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF138612-7EB6-4B0B-810B-89E6DB095D44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF138612-7EB6-4B0B-810B-89E6DB095D44}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
