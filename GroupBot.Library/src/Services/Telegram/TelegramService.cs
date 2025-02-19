@@ -19,17 +19,13 @@ public class TelegramService : ITelegramService
         _factory = factory;
         _cts = new CancellationTokenSource();
         _updateHandler = new UpdateHandler(factory);
-
-        botClient.OnMessage += HandleMessage;
-        botClient.OnUpdate += HandleUpdate;
-        botClient.OnError += HandleError;
     }
 
     public async Task StartBot()
     {
         var me = await _botClient.GetMe(_cts.Token);
 
-        _botClient.StartReceiving(_updateHandler, null, _cts.Token);
+        _botClient.StartReceiving(_updateHandler, cancellationToken: _cts.Token);
 
         Console.WriteLine($"@{me.Username} is running...");
 

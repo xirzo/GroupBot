@@ -28,13 +28,10 @@ public class DatabaseService : IDatabaseService
 
     public void InitializeDatabase()
     {
-        var jsonFilePath = _config.GetSection("Participants")["Path"];
-
-        if (string.IsNullOrEmpty(jsonFilePath))
-            throw new ArgumentException("Participants JSON file path environment variable is missing");
+        const string jsonFilePath = "participants.json";
 
         if (!File.Exists(jsonFilePath))
-            throw new FileNotFoundException($"JSON file not found: {jsonFilePath}");
+            throw new FileNotFoundException($"Participants file is not found: {jsonFilePath}");
 
         var json = File.ReadAllText(jsonFilePath);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };

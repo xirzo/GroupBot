@@ -25,7 +25,10 @@ public class Bot
 
                 var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
 
-                if (string.IsNullOrEmpty(botToken)) throw new ArgumentException("Bot token is missing");
+                if (string.IsNullOrEmpty(botToken))
+                {
+                    throw new ArgumentException("Bot token is missing");
+                }
 
                 services.AddSingleton(new TelegramBotClient(botToken));
             })
@@ -37,9 +40,9 @@ public class Bot
         var commandService = host.Services.GetRequiredService<ICommandService>();
         commandService.RegisterCommands();
 
-        var botService = host.Services.GetRequiredService<ITelegramService>();
-        await botService.StartBot();
-
+        var telegramService = host.Services.GetRequiredService<ITelegramService>();
+        await telegramService.StartBot();
+        
         Console.WriteLine("Bot is running... Press any key to terminate");
         Console.ReadLine();
 
