@@ -7,8 +7,8 @@ namespace GroupBot.Library.Services.Database;
 
 public class DatabaseService : IDatabaseService, IDisposable
 {
-    private readonly IConfiguration _config;
     private readonly BotDbContext _dbContext;
+    private readonly SemaphoreSlim _listsSemaphore;
     private List<Participant> _admins;
     private List<ChatList> _lists;
 
@@ -24,7 +24,7 @@ public class DatabaseService : IDatabaseService, IDisposable
         _dbContext = new BotDbContext(dbPath);
         _admins = [];
         _lists = [];
-        _config = config;
+        _listsSemaphore = new SemaphoreSlim(1, 1);
     }
 
     public void InitializeDatabase()
@@ -58,16 +58,22 @@ public class DatabaseService : IDatabaseService, IDisposable
 
     public async Task<List<ChatList>> GetAllLists()
     {
-        if (_lists.Count > 0)
+        try
         {
+            await _listsSemaphore.WaitAsync();
+            
+            _lists = await _dbContext.Lists
+                .Include(l => l.Members)
+                .ToListAsync();
+            
             return _lists;
         }
-
-        _lists = await _dbContext.Lists
-            .ToListAsync();
-
-        return _lists;
+        finally
+        {
+            _listsSemaphore.Release();
+        }
     }
+
 
     public async Task<List<Participant>> GetAllParticipantsInList(long id)
     {
@@ -239,28 +245,46 @@ public class DatabaseService : IDatabaseService, IDisposable
 
     public async Task RemoveList(long listId)
     {
-        using var transaction = _dbContext.Database.BeginTransaction();
-
         try
         {
-            var members = await _dbContext.ListMembers
-                .Where(lm => lm.ListId == listId)
-                .ToListAsync();
+            await _listsSemaphore.WaitAsync();
 
-            _dbContext.ListMembers.RemoveRange(members);
+            using var transaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                var members = await _dbContext.ListMembers
+                    .Where(lm => lm.ListId == listId)
+                    .ToListAsync();
 
-            var list = await _dbContext.Lists.FindAsync(listId);
-            if (list != null) _dbContext.Lists.Remove(list);
+                if (members.Any())
+                {
+                    _dbContext.ListMembers.RemoveRange(members);
+                    await _dbContext.SaveChangesAsync();
+                }
 
-            await _dbContext.SaveChangesAsync();
-            transaction.Commit();
+                var list = await _dbContext.Lists
+                    .FirstOrDefaultAsync(l => l.Id == listId);
 
-            _lists = await GetAllLists();
+                if (list != null)
+                {
+                    _dbContext.Lists.Remove(list);
+                    await _dbContext.SaveChangesAsync();
+                }
+
+                transaction.Commit();
+
+                _lists.RemoveAll(l => l.Id == listId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex}, while removing list {listId}");
+                transaction.Rollback();
+                throw;
+            }
         }
-        catch
+        finally
         {
-            transaction.Rollback();
-            throw;
+            _listsSemaphore.Release();
         }
     }
 

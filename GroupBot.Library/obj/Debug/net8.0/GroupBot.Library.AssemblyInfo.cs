@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GroupBot.Library")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6eacc28b7e2c2337dc07ef9231948fd584ca4666")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3f8cf444530eb4bbbd614ea1f410c64b66f27172")]
 [assembly: System.Reflection.AssemblyProductAttribute("GroupBot.Library")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GroupBot.Library")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

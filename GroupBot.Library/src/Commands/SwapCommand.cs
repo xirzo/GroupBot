@@ -92,7 +92,7 @@ public class SwapCommand : ICommand
     var replyMarkup = new ReplyKeyboardMarkup(true).AddButtons("Принять", "Отказаться");
 
     await bot.SendMessage(targetUser.Id,
-        $"{user.Username} отправил тебе swap-запрос в списке {list.Name}",
+        $"📝 {user.Username} отправил тебе swap-запрос в списке {list.Name}",
         replyMarkup: replyMarkup);
   }
 }
