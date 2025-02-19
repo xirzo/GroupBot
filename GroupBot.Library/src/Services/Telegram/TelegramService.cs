@@ -4,16 +4,16 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace GroupBot.Library.Services.Bot;
+namespace GroupBot.Library.Services.Telegram;
 
-public class BotService : IBotService
+public class TelegramService : ITelegramService
 {
     private readonly TelegramBotClient _botClient;
     private readonly CommandFactory _factory;
     private readonly CancellationTokenSource _cts;
     private readonly UpdateHandler _updateHandler;
 
-    public BotService(TelegramBotClient botClient, CommandFactory factory)
+    public TelegramService(TelegramBotClient botClient, CommandFactory factory)
     {
         _botClient = botClient;
         _factory = factory;
