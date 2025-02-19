@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using GroupBot.Library.Extensions;
+using GroupBot.Library.Services.Bot;
+using GroupBot.Library.Services.Command;
+using GroupBot.Library.Services.Database;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using GroupBot.Extensions;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
@@ -9,13 +12,13 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-var databaseService = host.Services.GetRequiredService<GroupBot.Services.Database.IDatabaseService>();
+var databaseService = host.Services.GetRequiredService<IDatabaseService>();
 databaseService.InitializeDatabase();
 
-var commandService = host.Services.GetRequiredService<GroupBot.Services.Command.ICommandService>();
+var commandService = host.Services.GetRequiredService<ICommandService>();
 commandService.RegisterCommands();
 
-var botService = host.Services.GetRequiredService<GroupBot.Services.Bot.IBotService>();
+var botService = host.Services.GetRequiredService<IBotService>();
 await botService.StartBot();
 
 Console.WriteLine("Bot is running... Press any key to terminate");

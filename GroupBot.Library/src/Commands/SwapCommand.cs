@@ -1,11 +1,11 @@
-using GroupBot.Commands.Abstract;
-using GroupBot.Requests;
-using GroupBot.Services.Database;
+using GroupBot.Library.Commands.Abstract;
+using GroupBot.Library.Requests;
+using GroupBot.Library.Services.Database;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace GroupBot.Commands;
+namespace GroupBot.Library.Commands;
 
 public class SwapCommand : ICommand
 {

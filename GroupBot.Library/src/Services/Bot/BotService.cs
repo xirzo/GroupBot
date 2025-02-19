@@ -1,11 +1,11 @@
-﻿using GroupBot.Commands.Abstract;
-using Telegram.Bot.Polling;
-
-namespace GroupBot.Services.Bot;
-
+﻿using GroupBot.Library.Commands.Abstract;
+using GroupBot.Services;
 using Telegram.Bot;
+using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+
+namespace GroupBot.Library.Services.Bot;
 
 public class BotService : IBotService
 {

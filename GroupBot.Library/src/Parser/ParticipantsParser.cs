@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace GroupBot.Parser;
+namespace GroupBot.Library.Parser;
 
 public class ParticipantsParser
 {

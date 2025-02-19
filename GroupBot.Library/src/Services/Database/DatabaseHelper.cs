@@ -1,18 +1,14 @@
 using System.Data;
 using System.Data.SQLite;
-using GroupBot.Lists;
-using GroupBot.Parser;
+using GroupBot.Library.Lists;
+using GroupBot.Library.Parser;
 
-namespace GroupBot.Services.Database;
+namespace GroupBot.Library.Services.Database;
 
 public class DatabaseHelper
 {
     private readonly string _connectionString;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="DatabaseHelper" /> class with the specified database path.
-    /// </summary>
-    /// <param name="dbPath">The file path to the SQLite database.</param>
     public DatabaseHelper(string dbPath)
     {
         _connectionString = $"Data Source={dbPath};Version=3;";
@@ -22,9 +18,6 @@ public class DatabaseHelper
         Initialize().GetAwaiter().GetResult();
     }
 
-    /// <summary>
-    ///     Initializes the database by creating necessary tables and ensuring the presence of required columns.
-    /// </summary>
     private async Task Initialize()
     {
         await using var connection = new SQLiteConnection(_connectionString);
@@ -128,11 +121,6 @@ public class DatabaseHelper
         Console.WriteLine("Database initialization complete.");
     }
 
-
-    /// <summary>
-    ///     Inserts a list of participants into the users table, ignoring duplicates.
-    /// </summary>
-    /// <param name="participants">The list of participants to insert.</param>
     public void InsertParticipants(List<Participant> participants)
     {
         using var connection = new SQLiteConnection(_connectionString);
@@ -150,12 +138,6 @@ public class DatabaseHelper
         }
     }
 
-    /// <summary>
-    ///     Executes a non-query SQL command asynchronously.
-    /// </summary>
-    /// <param name="query">The SQL query to execute.</param>
-    /// <param name="parameters">Optional SQL parameters.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task ExecuteQueryAsync(string query, params SQLiteParameter[]? parameters)
     {
         await using var connection = new SQLiteConnection(_connectionString);
@@ -168,12 +150,6 @@ public class DatabaseHelper
         await command.ExecuteNonQueryAsync();
     }
 
-    /// <summary>
-    ///     Creates a new user in the users table.
-    /// </summary>
-    /// <param name="telegramId">The Telegram ID of the user.</param>
-    /// <param name="fullName">The full name of the user.</param>
-    /// <returns>A task representing the asynchronous operation, with a boolean result indicating success.</returns>
     public async Task<bool> CreateUser(long telegramId, string fullName)
     {
         await using var connection = new SQLiteConnection(_connectionString);
@@ -189,11 +165,6 @@ public class DatabaseHelper
         return true;
     }
 
-    /// <summary>
-    ///     Checks asynchronously if a user exists in the users table based on the Telegram ID.
-    /// </summary>
-    /// <param name="telegramId">The Telegram ID of the user.</param>
-    /// <returns>A task representing the asynchronous operation, with a boolean result indicating existence.</returns>
     public async Task<bool> DoesUserExist(long telegramId)
     {
         await using var connection = new SQLiteConnection(_connectionString);
@@ -229,11 +200,6 @@ public class DatabaseHelper
         }
     }
 
-    /// <summary>
-    ///     Creates a new list with the specified name and shuffles all users into it by assigning shuffled positions.
-    /// </summary>
-    /// <param name="listName">The name of the new list.</param>
-    /// <returns>The ID of the newly created list.</returns>
     public async Task<long> CreateListAndShuffle(string listName)
     {
         if (string.IsNullOrWhiteSpace(listName))
@@ -303,10 +269,6 @@ public class DatabaseHelper
         }
     }
 
-    /// <summary>
-    ///     Retrieves all users from the users table.
-    /// </summary>
-    /// <returns>A list of all participants.</returns>
     public List<Participant> GetAllUsers()
     {
         var participants = new List<Participant>();
@@ -336,10 +298,6 @@ public class DatabaseHelper
         return participants;
     }
 
-    /// <summary>
-    ///     Retrieves all chat lists from the lists table.
-    /// </summary>
-    /// <returns>A list of all chat lists.</returns>
     public async Task<List<ChatList>> GetAllLists()
     {
         var result = new List<ChatList>();
@@ -360,12 +318,6 @@ public class DatabaseHelper
         return result;
     }
 
-    /// <summary>
-    ///     Asynchronously retrieves the user ID based on the provided Telegram ID.
-    /// </summary>
-    /// <param name="telegramId">The Telegram ID of the user.</param>
-    /// <returns>A task representing the asynchronous operation, with the user's ID as the result.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the user does not exist.</exception>
     public async Task<long> GetParticipantIdByTelegramId(long telegramId)
     {
         await using var connection = new SQLiteConnection(_connectionString);
@@ -381,12 +333,6 @@ public class DatabaseHelper
         throw new InvalidOperationException($"User with Telegram ID {telegramId} does not exist.");
     }
 
-    /// <summary>
-    ///     Attempts to add a user to a specific chat list.
-    /// </summary>
-    /// <param name="listId">The ID of the chat list.</param>
-    /// <param name="telegramId">The Telegram ID of the user to add.</param>
-    /// <returns>True if the operation was successful; otherwise, false.</returns>
     public async Task<bool> TryAddUserToList(long listId, long telegramId)
     {
         if (listId <= 0)
@@ -466,14 +412,6 @@ public class DatabaseHelper
         }
     }
 
-    /// <summary>
-    ///     Swaps the positions of two users within a specified list.
-    /// </summary>
-    /// <param name="listId">The ID of the list.</param>
-    /// <param name="userDbId">The database ID of the first user.</param>
-    /// <param name="targetDbId">The database ID of the second user.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if either user is not found in the list.</exception>
     public async Task SwapParticipantsInList(long listId, long userDbId, long targetDbId)
     {
         await using var connection = new SQLiteConnection(_connectionString);
@@ -577,12 +515,6 @@ public class DatabaseHelper
         return admins;
     }
 
-    /// <summary>
-    ///     Retrieves all users in the specified list, including their positions, sorted in ascending order of position.
-    /// </summary>
-    /// <param name="listId">The ID of the list.</param>
-    /// <returns>A list of participants with their positions.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the list does not exist.</exception>
     public async Task<List<Participant>> GetAllUsersInList(long listId)
     {
         var participants = new List<Participant>();
@@ -632,12 +564,6 @@ public class DatabaseHelper
         return participants;
     }
 
-    /// <summary>
-    ///     Moves a user to the end of the specified list. If the user is not in the list, they are added.
-    /// </summary>
-    /// <param name="listId">The ID of the list.</param>
-    /// <param name="telegramId">The Telegram ID of the user.</param>
-    /// <returns>A task representing the asynchronous operation, with a boolean result indicating success.</returns>
     public async Task<bool> MoveUserToEndOfListAsync(long listId, long telegramId)
     {
         if (listId <= 0)

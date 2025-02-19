@@ -1,8 +1,8 @@
-﻿using GroupBot.Lists;
-using GroupBot.Parser;
+﻿using GroupBot.Library.Lists;
+using GroupBot.Library.Parser;
 using Microsoft.Extensions.Configuration;
 
-namespace GroupBot.Services.Database;
+namespace GroupBot.Library.Services.Database;
 
 public class DatabaseService : IDatabaseService
 {

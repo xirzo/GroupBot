@@ -1,10 +1,10 @@
-using GroupBot.Commands.Abstract;
-using GroupBot.Requests;
+using GroupBot.Library.Commands.Abstract;
+using GroupBot.Library.Requests;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace GroupBot.Commands;
+namespace GroupBot.Library.Commands;
 
 public class SwapDeclineCommand : ICommand
 {

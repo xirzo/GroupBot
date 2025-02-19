@@ -1,4 +1,4 @@
-﻿namespace GroupBot.Services.Bot;
+﻿namespace GroupBot.Library.Services.Bot;
 
 public interface IBotService
 {

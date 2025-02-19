@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace GroupBot.Parser;
+namespace GroupBot.Library.Parser;
 
 public record struct Participant
 {

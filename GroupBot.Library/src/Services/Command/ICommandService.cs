@@ -1,4 +1,4 @@
-﻿namespace GroupBot.Services.Command;
+﻿namespace GroupBot.Library.Services.Command;
 
 public interface ICommandService
 {

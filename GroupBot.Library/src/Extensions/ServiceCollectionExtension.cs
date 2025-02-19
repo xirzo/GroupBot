@@ -1,13 +1,13 @@
+using GroupBot.Library.Commands.Abstract;
+using GroupBot.Library.Requests;
+using GroupBot.Library.Services.Bot;
+using GroupBot.Library.Services.Command;
+using GroupBot.Library.Services.Database;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
-using GroupBot.Commands.Abstract;
-using GroupBot.Requests;
-using GroupBot.Services.Bot;
-using GroupBot.Services.Command;
-using GroupBot.Services.Database;
 
-namespace GroupBot.Extensions
+namespace GroupBot.Library.Extensions
 {
     public static class ServiceCollectionExtensions
     {

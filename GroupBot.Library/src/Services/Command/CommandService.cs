@@ -1,9 +1,9 @@
-﻿using GroupBot.Commands;
-using GroupBot.Commands.Abstract;
-using GroupBot.Requests;
-using GroupBot.Services.Database;
+﻿using GroupBot.Library.Commands;
+using GroupBot.Library.Commands.Abstract;
+using GroupBot.Library.Requests;
+using GroupBot.Library.Services.Database;
 
-namespace GroupBot.Services.Command;
+namespace GroupBot.Library.Services.Command;
 
 public class CommandService : ICommandService
 {
