@@ -40,11 +40,17 @@ public class BotService : IBotService
     {
         var line = message.Text?.Split(' ')[0].Replace(" ", string.Empty);
 
-        if (line == null) return;
+        if (line == null)
+        {
+            return;
+        }
 
         var command = _factory.GetCommand(line);
 
-        if (command == null) return;
+        if (command == null)
+        {
+            return;
+        }
 
         await command.Execute(message, _botClient); 
     }
@@ -55,15 +61,19 @@ public class BotService : IBotService
             return;
 
         var message = update.Message;
-        
+
         if (message?.Text == null)
+        {
             return;
+        }
 
         var line = message.Text.Split(' ')[0];
         var command = _factory.GetCommand(line);
 
         if (command != null)
+        {
             await command.Execute(message, _botClient);
+        }
     }
 
     private Task HandleError(Exception exception, HandleErrorSource source)

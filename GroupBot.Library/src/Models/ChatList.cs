@@ -1,6 +1,6 @@
 using GroupBot.Library.Services.Database;
 
-namespace GroupBot.Library.Lists;
+namespace GroupBot.Library.Models;
 
 public class ChatList
 {

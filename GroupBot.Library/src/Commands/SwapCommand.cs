@@ -1,4 +1,5 @@
 using GroupBot.Library.Commands.Abstract;
+using GroupBot.Library.Models;
 using GroupBot.Library.Requests;
 using GroupBot.Library.Services.Database;
 using Telegram.Bot;

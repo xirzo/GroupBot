@@ -1,4 +1,4 @@
-namespace GroupBot.Library.Requests;
+namespace GroupBot.Library.Models;
 
 public readonly record struct PendingRequest(
     long TargetUserTelegramId,

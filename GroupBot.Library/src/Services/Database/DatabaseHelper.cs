@@ -1,6 +1,5 @@
 using System.Data;
 using System.Data.SQLite;
-using GroupBot.Library.Lists;
 using GroupBot.Library.Models;
 
 namespace GroupBot.Library.Services.Database;

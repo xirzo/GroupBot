@@ -1,3 +1,5 @@
+using GroupBot.Library.Models;
+
 namespace GroupBot.Library.Requests;
 
 public class RequestsContainer
