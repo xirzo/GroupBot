@@ -40,9 +40,6 @@ GroupBot — это Telegram-бот, предназначенный для уп�
       {
         "Database": {
           "Path": "/app/data/database.db"
-        },
-        "Participants": {
-          "Path": "/app/data/participants.json"
         }
       }
       ```
@@ -74,14 +71,8 @@ GroupBot — это Telegram-бот, предназначенный для уп�
     - Создайте файл `appsettings.json` в корне проекта со следующей структурой:
       ```json
       {
-        "Tokens": {
-          "BotToken": "YOUR_TELEGRAM_BOT_TOKEN"
-        },
         "Database": {
-          "Path": "path/to/your/database.db"
-        },
-        "Participants": {
-          "Path": "path/to/participants.json"
+          "Path": "/app/data/database.db"
         }
       }
       ```

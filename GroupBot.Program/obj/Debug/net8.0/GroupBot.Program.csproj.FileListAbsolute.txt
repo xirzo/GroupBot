@@ -140,3 +140,5 @@ C:\Users\garry\RiderProjects\GroupBot\GroupBot.Program\bin\Debug\net8.0\GroupBot
 C:\Users\garry\RiderProjects\GroupBot\GroupBot.Program\bin\Debug\net8.0\GroupBot.Library.pdb
 C:\Users\garry\RiderProjects\GroupBot\GroupBot.Program\obj\Debug\net8.0\GroupBot.Program.csproj.AssemblyReference.cache
 C:\Users\garry\RiderProjects\GroupBot\GroupBot.Program\obj\Debug\net8.0\GroupBot.4007ECE2.Up2Date
+C:\Users\garry\RiderProjects\GroupBot\GroupBot.Program\bin\Debug\net8.0\appsettings.json
+C:\Users\garry\RiderProjects\GroupBot\GroupBot.Program\bin\Debug\net8.0\participants.json

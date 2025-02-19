@@ -17,7 +17,9 @@ public class DatabaseService : IDatabaseService
         var dbPath = config.GetSection("Database")["Path"];
 
         if (string.IsNullOrEmpty(dbPath))
-            throw new ArgumentException("DB Path environment variable is missing");
+        {
+            throw new ArgumentException("Database path is missing in the configuration file");
+        }
 
         _databaseHelper = new DatabaseHelper(dbPath);
         _admins = [];
