@@ -1,5 +1,5 @@
 ﻿using GroupBot.Library.Lists;
-using GroupBot.Library.Parser;
+using GroupBot.Library.Models;
 
 namespace GroupBot.Library.Services.Database;
 

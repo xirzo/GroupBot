@@ -1,5 +1,6 @@
-﻿using GroupBot.Library.Lists;
-using GroupBot.Library.Parser;
+﻿using System.Text.Json;
+using GroupBot.Library.Lists;
+using GroupBot.Library.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace GroupBot.Library.Services.Database;
@@ -31,8 +32,18 @@ public class DatabaseService : IDatabaseService
         if (string.IsNullOrEmpty(jsonFilePath))
             throw new ArgumentException("Participants JSON file path environment variable is missing");
 
-        var parser = new ParticipantsParser();
-        var participants = parser.Parse(jsonFilePath);
+        if (!File.Exists(jsonFilePath))
+            throw new FileNotFoundException($"JSON file not found: {jsonFilePath}");
+
+        var json = File.ReadAllText(jsonFilePath);
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var participants = JsonSerializer.Deserialize<List<Participant>>(json, options);
+
+        if (participants == null)
+        {
+            throw new ArgumentException($"There are no participants in JSON file: {jsonFilePath}");
+        }
+
         _databaseHelper.InsertParticipants(participants);
     }
 
