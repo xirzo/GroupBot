@@ -14,7 +14,7 @@ public class RemoveListCommand : ICommand
         _database = database;
     }
 
-    public async Task Execute(Message message, TelegramBotClient bot)
+    public async Task Execute(Message message, ITelegramBotClient bot)
     {
         var admins = await _database.GetAllAdmins();
 

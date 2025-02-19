@@ -16,7 +16,7 @@ public class StartCommand : ICommand
         _databaseService = databaseService;
     }
 
-    public async Task Execute(Message message, TelegramBotClient bot)
+    public async Task Execute(Message message, ITelegramBotClient bot)
     {
         if (message.Chat.Type == ChatType.Private)
         {

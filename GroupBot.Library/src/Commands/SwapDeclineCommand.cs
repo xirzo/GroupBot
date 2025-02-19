@@ -15,7 +15,7 @@ public class SwapDeclineCommand : ICommand
         _requestService = requestService;
     }
 
-    public async Task Execute(Message message, TelegramBotClient bot)
+    public async Task Execute(Message message, ITelegramBotClient bot)
     {
         var replyParameters = new ReplyParameters
         {

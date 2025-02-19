@@ -5,5 +5,5 @@ namespace GroupBot.Library.Commands.Abstract;
 
 public interface ICommand
 {
-    Task Execute(Message message, TelegramBotClient bot);
+    Task Execute(Message message, ITelegramBotClient bot);
 }

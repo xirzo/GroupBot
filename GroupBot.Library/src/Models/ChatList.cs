@@ -1,28 +1,16 @@
-using GroupBot.Library.Services.Database;
+﻿using GroupBot.Library.Services.Database;
 
 namespace GroupBot.Library.Models;
-
 public class ChatList
 {
-  public string Name { get; }
-  public long Id { get; }
+    public long Id { get; set; }
+    public required string Name { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-  public ChatList(string name, long id)
-  {
-    Name = name;
-    Id = id;
-  }
+    public virtual ICollection<ListMember> Members { get; set; } = new List<ListMember>();
 
-  public async void Swap(long userDbId, long targetDbId, IDatabaseService db)
-  {
-    try
+    public Task SwapAsync(long userDbId, long targetDbId, IDatabaseService db)
     {
-      await db.SwapParticipantsInList(Id, userDbId, targetDbId);
+        return db.SwapParticipantsInList(Id, userDbId, targetDbId);
     }
-
-    catch (Exception e)
-    {
-      Console.WriteLine($"Error: {e}");
-    }
-  }
 }

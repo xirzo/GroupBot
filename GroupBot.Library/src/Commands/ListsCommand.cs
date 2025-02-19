@@ -15,7 +15,7 @@ public class ListsCommand : ICommand
     _db = db;
   }
 
-  public async Task Execute(Message message, TelegramBotClient bot)
+  public async Task Execute(Message message, ITelegramBotClient bot)
   {
     if (message.Text == "/lists" == false)
     {
@@ -24,7 +24,7 @@ public class ListsCommand : ICommand
     }
 
     var lists = await _db.GetAllLists();
-
+    
     if (lists.Count == 0)
     {
       await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");

@@ -7,14 +7,14 @@ namespace GroupBot.Library.Commands;
 
 public class ToEndCommand : ICommand
 {
-  private IDatabaseService _db;
+  private readonly IDatabaseService _db;
 
   public ToEndCommand(IDatabaseService db)
   {
     _db = db;
   }
 
-  public async Task Execute(Message message, TelegramBotClient bot)
+  public async Task Execute(Message message, ITelegramBotClient bot)
   {
     if (message.From == null)
     {
@@ -42,4 +42,5 @@ public class ToEndCommand : ICommand
 
     await _db.MoveUserToEndOfList(list.Id, message.From.Id);
   }
+
 }

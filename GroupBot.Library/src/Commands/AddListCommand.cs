@@ -14,7 +14,7 @@ public class AddListCommand : ICommand
         _db = db;
     }
 
-    public async Task Execute(Message message, TelegramBotClient bot)
+    public async Task Execute(Message message, ITelegramBotClient bot)
     {
         var admins = await _db.GetAllAdmins();
 

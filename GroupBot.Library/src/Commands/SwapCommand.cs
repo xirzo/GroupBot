@@ -19,7 +19,7 @@ public class SwapCommand : ICommand
     _db = db;
   }
 
-  public async Task Execute(Message message, TelegramBotClient bot)
+  public async Task Execute(Message message, ITelegramBotClient bot)
   {
     var words = message.Text?.Split(' ');
 

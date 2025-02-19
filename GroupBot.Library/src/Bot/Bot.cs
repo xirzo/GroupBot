@@ -37,14 +37,16 @@ public class Bot
         var databaseService = host.Services.GetRequiredService<IDatabaseService>();
         databaseService.InitializeDatabase();
 
+        Console.WriteLine("Database initialized");
+        
         var commandService = host.Services.GetRequiredService<ICommandService>();
         commandService.RegisterCommands();
+        
+        Console.WriteLine("Commands registered");
 
         var telegramService = host.Services.GetRequiredService<ITelegramService>();
         await telegramService.StartBot();
         
-        Console.WriteLine("Bot is running... Press any key to terminate");
-        Console.ReadLine();
 
         await host.RunAsync();
     }

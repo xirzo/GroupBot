@@ -18,7 +18,7 @@ public class SwapAcceptCommand : ICommand
     _db = db;
   }
 
-  public async Task Execute(Message message, TelegramBotClient bot)
+  public async Task Execute(Message message, ITelegramBotClient bot)
   {
     var replyParameters = new ReplyParameters
     {
@@ -51,7 +51,7 @@ public class SwapAcceptCommand : ICommand
 
     var list = lists.First(l => l.Id == pendingRequest.Value.ListDbId);
 
-    list.Swap(pendingRequest.Value.UserDbId, pendingRequest.Value.TargetUserDbId, _db);
+    await list.SwapAsync(pendingRequest.Value.UserDbId, pendingRequest.Value.TargetUserDbId, _db);
 
     _requestService.Remove(pendingRequest.Value);
 
