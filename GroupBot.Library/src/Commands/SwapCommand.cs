@@ -1,7 +1,7 @@
 using GroupBot.Library.Commands.Abstract;
 using GroupBot.Library.Models;
-using GroupBot.Library.Requests;
 using GroupBot.Library.Services.Database;
+using GroupBot.Library.Services.Request;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -10,12 +10,12 @@ namespace GroupBot.Library.Commands;
 
 public class SwapCommand : ICommand
 {
-  private readonly RequestsContainer _requestsContainer;
+  private readonly IRequestService _requestService;
   private readonly IDatabaseService _db;
 
-  public SwapCommand(RequestsContainer requestsContainer, IDatabaseService db)
+  public SwapCommand(IRequestService requestService, IDatabaseService db)
   {
-    _requestsContainer = requestsContainer;
+    _requestService = requestService;
     _db = db;
   }
 
@@ -87,7 +87,7 @@ public class SwapCommand : ICommand
 
     var pendingRequest = new PendingRequest(targetUser.Id, userDbId, targetUserDbId, list.Id);
 
-    _requestsContainer.Add(pendingRequest);
+    _requestService.Add(pendingRequest);
 
     var replyMarkup = new ReplyKeyboardMarkup(true).AddButtons("Принять", "Отказаться");
 

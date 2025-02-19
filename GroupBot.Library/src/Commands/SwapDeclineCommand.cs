@@ -1,5 +1,5 @@
 using GroupBot.Library.Commands.Abstract;
-using GroupBot.Library.Requests;
+using GroupBot.Library.Services.Request;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -8,11 +8,11 @@ namespace GroupBot.Library.Commands;
 
 public class SwapDeclineCommand : ICommand
 {
-    private readonly RequestsContainer _requestsContainer;
+    private readonly IRequestService _requestService;
 
-    public SwapDeclineCommand(RequestsContainer requestsContainer)
+    public SwapDeclineCommand(IRequestService requestService)
     {
-        _requestsContainer = requestsContainer;
+        _requestService = requestService;
     }
 
     public async Task Execute(Message message, TelegramBotClient bot)
@@ -36,7 +36,7 @@ public class SwapDeclineCommand : ICommand
         }
 
         var userId = message.From.Id;
-        var pendingRequest = _requestsContainer.GetRequest(userId);
+        var pendingRequest = _requestService.GetRequest(userId);
 
         if (pendingRequest == null)
         {
@@ -44,7 +44,7 @@ public class SwapDeclineCommand : ICommand
             return;
         }
 
-        _requestsContainer.Remove(pendingRequest.Value);
+        _requestService.Remove(pendingRequest.Value);
 
         await bot.SendMessage(message.Chat.Id,
             "❌ Вы успешно отказались от обмена",

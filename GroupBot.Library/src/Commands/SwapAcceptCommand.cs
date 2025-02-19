@@ -1,6 +1,6 @@
 using GroupBot.Library.Commands.Abstract;
-using GroupBot.Library.Requests;
 using GroupBot.Library.Services.Database;
+using GroupBot.Library.Services.Request;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -9,12 +9,12 @@ namespace GroupBot.Library.Commands;
 
 public class SwapAcceptCommand : ICommand
 {
-  private readonly RequestsContainer _requestsContainer;
+  private readonly IRequestService _requestService;
   private readonly IDatabaseService _db;
 
-  public SwapAcceptCommand(RequestsContainer requestsContainer, IDatabaseService db)
+  public SwapAcceptCommand(IRequestService requestService, IDatabaseService db)
   {
-    _requestsContainer = requestsContainer;
+    _requestService = requestService;
     _db = db;
   }
 
@@ -39,7 +39,7 @@ public class SwapAcceptCommand : ICommand
     }
 
     var userTelegramId = message.From.Id;
-    var pendingRequest = _requestsContainer.GetRequest(userTelegramId);
+    var pendingRequest = _requestService.GetRequest(userTelegramId);
 
     if (pendingRequest == null)
     {
@@ -53,7 +53,7 @@ public class SwapAcceptCommand : ICommand
 
     list.Swap(pendingRequest.Value.UserDbId, pendingRequest.Value.TargetUserDbId, _db);
 
-    _requestsContainer.Remove(pendingRequest.Value);
+    _requestService.Remove(pendingRequest.Value);
 
     await bot.SendMessage(message.Chat.Id,
         $"✅ Вы были успешно обменены местами в списке {list.Name}",

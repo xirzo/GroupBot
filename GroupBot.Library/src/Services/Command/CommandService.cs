@@ -1,7 +1,7 @@
 ﻿using GroupBot.Library.Commands;
 using GroupBot.Library.Commands.Abstract;
-using GroupBot.Library.Requests;
 using GroupBot.Library.Services.Database;
+using GroupBot.Library.Services.Request;
 
 namespace GroupBot.Library.Services.Command;
 
@@ -9,13 +9,13 @@ public class CommandService : ICommandService
 {
     private readonly IDatabaseService _database;
     private readonly CommandFactory _factory;
-    private readonly RequestsContainer _requestsContainer;
+    private readonly IRequestService _requestService;
 
-    public CommandService(CommandFactory factory, IDatabaseService databaseService, RequestsContainer requestsContainer)
+    public CommandService(CommandFactory factory, IDatabaseService databaseService, IRequestService requestService)
     {
         _factory = factory;
         _database = databaseService;
-        _requestsContainer = requestsContainer;
+        _requestService = requestService;
     }
 
     public void RegisterCommands()
@@ -26,8 +26,8 @@ public class CommandService : ICommandService
         _factory.Register("/list", new ListCommand(_database));
         _factory.Register("/lists", new ListsCommand(_database));
         _factory.Register("/removelist", new RemoveListCommand(_database));
-        _factory.Register("/swap", new SwapCommand(_requestsContainer, _database));
-        _factory.Register("Принять", new SwapAcceptCommand(_requestsContainer, _database));
-        _factory.Register("Отказаться", new SwapDeclineCommand(_requestsContainer));
+        _factory.Register("/swap", new SwapCommand(_requestService, _database));
+        _factory.Register("Принять", new SwapAcceptCommand(_requestService, _database));
+        _factory.Register("Отказаться", new SwapDeclineCommand(_requestService));
     }
 }

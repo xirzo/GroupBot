@@ -1,14 +1,17 @@
-using GroupBot.Library.Models;
+﻿using GroupBot.Library.Models;
 
-namespace GroupBot.Library.Requests;
+namespace GroupBot.Library.Services.Request;
 
-public class RequestsContainer
+public class RequestService : IRequestService
 {
     private readonly List<PendingRequest> _pendingRequests = [];
 
     public void Add(PendingRequest request)
     {
-        if (_pendingRequests.Contains(request)) return;
+        if (_pendingRequests.Contains(request))
+        {
+            return;
+        }
 
         _pendingRequests.Add(request);
     }
@@ -20,11 +23,6 @@ public class RequestsContainer
 
     public PendingRequest? GetRequest(long userId)
     {
-        foreach (var request in _pendingRequests.Where(request => userId == request.TargetUserTelegramId))
-        {
-            return request;
-        }
-
-        return null;
+        return _pendingRequests.FirstOrDefault(request => request.TargetUserTelegramId == userId);
     }
 }
