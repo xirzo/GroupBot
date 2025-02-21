@@ -8,32 +8,27 @@ namespace GroupBot.Library.Commands;
 
 public class ListsCommand : ICommand
 {
-  private readonly IDatabaseService _db;
+    private readonly IDatabaseService _db;
+    public long NumberOfArguments => 0;
 
-  public ListsCommand(IDatabaseService db)
-  {
-    _db = db;
-  }
-
-  public async Task Execute(Message message, ITelegramBotClient bot)
-  {
-    if (message.Text == "/lists" == false)
+    public ListsCommand(IDatabaseService db)
     {
-      await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /lists");
-      return;
+        _db = db;
     }
 
-    var lists = await _db.GetAllLists();
-    
-    if (lists.Count == 0)
+    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
     {
-      await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
-      return;
-    }
+        var lists = await _db.GetAllLists();
 
-    var text = new StringBuilder();
-    text.Append($"📝 Списки:\n\n");
-    text.Append(string.Join("\n", lists.Select(l => l.Name)));
-    await bot.SendMessage(message.Chat.Id, text.ToString());
-  }
+        if (lists.Count == 0)
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
+            return;
+        }
+
+        var text = new StringBuilder();
+        text.Append($"📝 Списки:\n\n");
+        text.Append(string.Join("\n", lists.Select(l => l.Name)));
+        await bot.SendMessage(message.Chat.Id, text.ToString());
+    }
 }

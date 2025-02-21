@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using GroupBot.Library.Commands.Abstract;
 using GroupBot.Library.Services.Request;
 using Telegram.Bot;
@@ -16,7 +15,9 @@ public class SwapDeclineCommand : ICommand
         _requestService = requestService;
     }
 
-    public async Task Execute(Message message, ITelegramBotClient bot)
+    public long NumberOfArguments => 0;
+
+    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
     {
         var replyParameters = new ReplyParameters
         {

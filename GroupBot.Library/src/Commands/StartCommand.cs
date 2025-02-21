@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using GroupBot.Library.Commands.Abstract;
 using GroupBot.Library.Services.Database;
 using Telegram.Bot;
@@ -17,17 +16,23 @@ public class StartCommand : ICommand
         _databaseService = databaseService;
     }
 
-    public async Task Execute(Message message, ITelegramBotClient bot)
+    public long NumberOfArguments => 0;
+
+    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
     {
         if (message.Chat.Type == ChatType.Private)
         {
             var lists = await _databaseService.GetAllLists();
             var keyboardButtons = new KeyboardButton[lists.Count];
 
-            for (var i = 0; i < lists.Count; i++) keyboardButtons[i] = new KeyboardButton("/list " + lists[i].Name);
+            for (var i = 0; i < lists.Count; i++)
+            {
+                keyboardButtons[i] = new KeyboardButton("/list " + lists[i].Name);
+            }
 
             var replyMarkup = new ReplyKeyboardMarkup(true).AddButtons(keyboardButtons);
-            await bot.SendMessage(message.Chat.Id, "Привет! Выбери команду", replyMarkup: replyMarkup);
+
+            await bot.SendMessage(message.Chat.Id, "Привет! Выбери список для отрисовки", replyMarkup: replyMarkup);
             return;
         }
 

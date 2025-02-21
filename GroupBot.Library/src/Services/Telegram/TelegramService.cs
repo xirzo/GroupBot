@@ -1,24 +1,18 @@
-﻿using GroupBot.Library.Commands.Abstract;
-using Telegram.Bot;
-using Telegram.Bot.Polling;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
+﻿using Telegram.Bot;
 
 namespace GroupBot.Library.Services.Telegram;
 
 public class TelegramService : ITelegramService
 {
     private readonly TelegramBotClient _botClient;
-    private readonly CommandFactory _factory;
     private readonly CancellationTokenSource _cts;
     private readonly UpdateHandler _updateHandler;
 
-    public TelegramService(TelegramBotClient botClient, CommandFactory factory)
+    public TelegramService(TelegramBotClient botClient, UpdateHandler updateHandler)
     {
         _botClient = botClient;
-        _factory = factory;
         _cts = new CancellationTokenSource();
-        _updateHandler = new UpdateHandler(factory);
+        _updateHandler = updateHandler;
     }
 
     public async Task StartBot()

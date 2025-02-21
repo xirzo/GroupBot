@@ -1,4 +1,5 @@
 ﻿using GroupBot.Library.Commands.Abstract;
+using GroupBot.Library.Services;
 using GroupBot.Library.Services.Command;
 using GroupBot.Library.Services.Database;
 using GroupBot.Library.Services.Request;
@@ -22,6 +23,8 @@ public class Bot
                 services.AddSingleton<IRequestService, RequestService>();
 
                 services.AddSingleton<CommandFactory>();
+                services.AddSingleton<CommandParser>();
+                services.AddSingleton<UpdateHandler>();
 
                 var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
 
@@ -38,15 +41,15 @@ public class Bot
         databaseService.InitializeDatabase();
 
         Console.WriteLine("Database initialized");
-        
+
         var commandService = host.Services.GetRequiredService<ICommandService>();
         commandService.RegisterCommands();
-        
+
         Console.WriteLine("Commands registered");
 
         var telegramService = host.Services.GetRequiredService<ITelegramService>();
         await telegramService.StartBot();
-        
+
 
         await host.RunAsync();
     }

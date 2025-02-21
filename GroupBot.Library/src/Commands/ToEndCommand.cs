@@ -7,40 +7,33 @@ namespace GroupBot.Library.Commands;
 
 public class ToEndCommand : ICommand
 {
-  private readonly IDatabaseService _db;
+    private readonly IDatabaseService _db;
 
-  public ToEndCommand(IDatabaseService db)
-  {
-    _db = db;
-  }
-
-  public async Task Execute(Message message, ITelegramBotClient bot)
-  {
-    if (message.From == null)
+    public ToEndCommand(IDatabaseService db)
     {
-      throw new Exception("There is no message");
+        _db = db;
     }
 
-    var words = message.Text?.Split(' ');
+    public long NumberOfArguments => 1;
 
-    if (words is ["/toend", _] == false)
+    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
     {
-      await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /toend <название списка>",
-          replyParameters: new ReplyParameters { MessageId = message.MessageId });
-      return;
+        if (message.From == null)
+        {
+            throw new Exception("There is no message");
+        }
+
+        var lists = await _db.GetAllLists();
+
+        if (lists.Count == 0)
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
+            return;
+        }
+
+        var list = lists.First(l => l.Name == parameters[0]);
+
+        await _db.MoveUserToEndOfList(list.Id, message.From.Id);
     }
-
-    var lists = await _db.GetAllLists();
-
-    if (lists.Count == 0)
-    {
-      await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
-      return;
-    }
-
-    var list = lists.First(l => l.Name == words[1]);
-
-    await _db.MoveUserToEndOfList(list.Id, message.From.Id);
-  }
 
 }

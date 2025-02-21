@@ -1,5 +1,4 @@
 using System.Text;
-using System.Threading.Tasks;
 using GroupBot.Library.Commands.Abstract;
 using GroupBot.Library.Services.Database;
 using Telegram.Bot;
@@ -16,17 +15,10 @@ public class ListCommand : ICommand
         _db = db;
     }
 
-    public async Task Execute(Message message, ITelegramBotClient bot)
+    public long NumberOfArguments => 1;
+
+    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
     {
-        var words = message.Text?.Split(' ');
-
-        if (words is ["/list", _] == false)
-        {
-            await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /list <название списка>",
-                replyParameters: new ReplyParameters { MessageId = message.MessageId });
-            return;
-        }
-
         var lists = await _db.GetAllLists();
 
         if (lists.Count == 0)
@@ -35,7 +27,13 @@ public class ListCommand : ICommand
             return;
         }
 
-        var list = lists.First(l => l.Name == words[1]);
+        var list = lists.First(l => l.Name == parameters[0]);
+
+        if (list is null)
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Не найден список с таким именем.");
+            return;
+        }
 
         var participants = await _db.GetAllParticipantsInList(list.Id);
 

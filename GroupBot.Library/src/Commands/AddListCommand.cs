@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using GroupBot.Library.Commands.Abstract;
 using GroupBot.Library.Services.Database;
 using Telegram.Bot;
@@ -15,7 +14,9 @@ public class AddListCommand : ICommand
         _db = db;
     }
 
-    public async Task Execute(Message message, ITelegramBotClient bot)
+    public long NumberOfArguments => 1;
+
+    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
     {
         var admins = await _db.GetAllAdmins();
 
@@ -26,25 +27,17 @@ public class AddListCommand : ICommand
             return;
         }
 
-        var words = message.Text?.Split(' ');
-
-        if (words is ["/addlist", _] == false)
-        {
-            await bot.SendMessage(message.Chat.Id, "❌ Неверный формат команды. Используйте /addlist <название списка>",
-                replyParameters: new ReplyParameters { MessageId = message.MessageId });
-            return;
-        }
-
         var lists = await _db.GetAllLists();
 
-        if (lists.Exists(l => l.Name == words[1]))
+        if (lists.Exists(l => l.Name == parameters[0]))
         {
             await bot.SendMessage(message.Chat.Id, "❌ Список с таким названием уже существует",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
             return;
         }
 
-        var id = await _db.CreateListAndShuffle(words[1]);
-        await bot.SendMessage(message.Chat.Id, $"✅ Создан новый список с названием {words[1]} и id: {id}");
+        var id = await _db.CreateListAndShuffle(parameters[0]);
+
+        await bot.SendMessage(message.Chat.Id, $"✅ Создан новый список с названием {parameters[0]} и id: {id}");
     }
 }

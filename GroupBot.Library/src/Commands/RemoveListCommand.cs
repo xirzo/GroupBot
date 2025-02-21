@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using GroupBot.Library.Commands.Abstract;
+﻿using GroupBot.Library.Commands.Abstract;
 using GroupBot.Library.Services.Database;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -17,7 +14,9 @@ public class RemoveListCommand : ICommand
         _database = database;
     }
 
-    public async Task Execute(Message message, ITelegramBotClient bot)
+    public long NumberOfArguments => 1;
+
+    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
     {
         try
         {
@@ -32,16 +31,6 @@ public class RemoveListCommand : ICommand
                 return;
             }
 
-            var words = message.Text?.Split(' ');
-
-            if (words is not ["/removelist", var listName])
-            {
-                await bot.SendMessage(
-                    chatId: message.Chat.Id,
-                    text: "❌ Неверный формат команды. Используйте /removelist <название списка>",
-                    replyParameters: new ReplyParameters { MessageId = message.MessageId });
-                return;
-            }
 
             var lists = await _database.GetAllLists();
 
@@ -54,13 +43,13 @@ public class RemoveListCommand : ICommand
                 return;
             }
 
-            var list = lists.FirstOrDefault(l => l.Name.Equals(listName, StringComparison.OrdinalIgnoreCase));
-            
+            var list = lists.FirstOrDefault(l => l.Name.Equals(parameters[0], StringComparison.OrdinalIgnoreCase));
+
             if (list == null)
             {
                 await bot.SendMessage(
                     chatId: message.Chat.Id,
-                    text: $"❌ Список с названием \"{listName}\" не найден.",
+                    text: $"❌ Список с названием \"{parameters[0]}\" не найден.",
                     replyParameters: new ReplyParameters { MessageId = message.MessageId });
                 return;
             }
@@ -78,7 +67,7 @@ public class RemoveListCommand : ICommand
                 chatId: message.Chat.Id,
                 text: "❌ Произошла ошибка при удалении списка.",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
-            
+
             Console.WriteLine(ex);
         }
     }
