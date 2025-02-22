@@ -99,7 +99,7 @@ public class DatabaseService : IDatabaseService, IDisposable
             .Select(lm => new Participant
             {
                 Id = lm.User.TelegramId,
-                Name = lm.User.FullName ?? "Unknown User",
+                Name = lm.User.FullName,
                 Position = lm.Position
             })
             .ToListAsync();
@@ -293,6 +293,78 @@ public class DatabaseService : IDatabaseService, IDisposable
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex}, while removing list {listId}");
+                transaction.Rollback();
+                throw;
+            }
+        }
+        finally
+        {
+            _listsSemaphore.Release();
+        }
+    }
+
+    public async Task Sift(long listId, string userName)
+    {
+        try
+        {
+            await _listsSemaphore.WaitAsync();
+
+            using var transaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                var members = await _dbContext.ListMembers
+                    .Include(lm => lm.User)
+                    .Where(lm => lm.ListId == listId)
+                    .OrderBy(lm => lm.Position)
+                    .ToListAsync();
+
+                if (!members.Any())
+                {
+                    throw new InvalidOperationException("Список пуст");
+                }
+
+                var targetMember = members.FirstOrDefault(m => m.User.FullName == userName);
+
+                if (targetMember == null)
+                {
+                    throw new InvalidOperationException($"Участник {userName} не найден в списке");
+                }
+
+                var beforeTarget = members
+                    .Where(m => m.Position < targetMember.Position)
+                    .Reverse()
+                    .ToList();
+
+                var afterTarget = members
+                    .Where(m => m.Position > targetMember.Position)
+                    .ToList();
+
+                var position = 1;
+
+                foreach (var member in afterTarget)
+                {
+                    member.Position = position++;
+                }
+
+                targetMember.Position = position++;
+
+                foreach (var member in beforeTarget)
+                {
+                    member.Position = position++;
+                }
+
+                await _dbContext.SaveChangesAsync();
+                transaction.Commit();
+
+                var list = _lists.FirstOrDefault(l => l.Id == listId);
+
+                if (list != null)
+                {
+                    list.Members = members.OrderBy(m => m.Position).ToList();
+                }
+            }
+            catch
+            {
                 transaction.Rollback();
                 throw;
             }
