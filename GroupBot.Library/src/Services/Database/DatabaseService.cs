@@ -112,7 +112,22 @@ public class DatabaseService : IDatabaseService, IDisposable
             .FirstOrDefaultAsync(u => u.TelegramId == telegramId);
 
         if (user == null)
+        {
             throw new InvalidOperationException($"User with Telegram ID {telegramId} does not exist.");
+        }
+
+        return user.Id;
+    }
+
+    public async Task<long> GetUserIdByFullName(string fullName)
+    {
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.FullName == fullName);
+
+        if (user == null)
+        {
+            throw new InvalidOperationException($"User with full name {fullName} does not exist.");
+        }
 
         return user.Id;
     }
@@ -374,6 +389,42 @@ public class DatabaseService : IDatabaseService, IDisposable
             _listsSemaphore.Release();
         }
     }
+
+    public async Task AddAdmin(long userId)
+    {
+        try
+        {
+            await _listsSemaphore.WaitAsync();
+
+            var user = await _dbContext.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException($"User with ID {userId} not found.");
+            }
+
+            bool adminExists = await _dbContext.Admins.AnyAsync(a => a.UserId == userId);
+
+            if (adminExists)
+            {
+                return;
+            }
+
+            var admin = new Admin
+            {
+                UserId = userId,
+                User = user
+            };
+
+            _dbContext.Admins.Add(admin);
+            await _dbContext.SaveChangesAsync();
+        }
+        finally
+        {
+            _listsSemaphore.Release();
+        }
+    }
+
 
     public void Dispose()
     {

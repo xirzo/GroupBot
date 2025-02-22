@@ -9,9 +9,11 @@ public interface IDatabaseService
     Task<long> CreateListAndShuffle(string listName);
     Task<List<Participant>> GetAllListMembers(long id);
     Task<long> GetUserIdByTelegramId(long id);
+    Task<long> GetUserIdByFullName(string fullName);
     Task MoveUserToEndOfList(long listId, long userId);
     Task SwapParticipantsInList(long id, long userDbId, long targetDbId);
     Task<List<Participant>> GetAllAdmins();
     Task RemoveList(long listId);
     Task Sift(long listId, string userName);
+    Task AddAdmin(long userId);
 }
