@@ -8,26 +8,26 @@ namespace GroupBot.Library.Services.Command;
 public class CommandService : ICommandService
 {
     private readonly IDatabaseService _database;
-    private readonly CommandRepository _factory;
+    private readonly CommandRepository _repository;
     private readonly IRequestService _requestService;
 
     public CommandService(CommandRepository factory, IDatabaseService databaseService, IRequestService requestService)
     {
-        _factory = factory;
+        _repository = factory;
         _database = databaseService;
         _requestService = requestService;
     }
 
     public void RegisterCommands()
     {
-        _factory.Register("/start", new StartCommand(_database));
-        _factory.Register("/addlist", new AddListCommand(_database));
-        _factory.Register("/toend", new ToEndCommand(_database));
-        _factory.Register("/list", new ListCommand(_database));
-        _factory.Register("/lists", new ListsCommand(_database));
-        _factory.Register("/removelist", new RemoveListCommand(_database));
-        _factory.Register("/swap", new SwapCommand(_requestService, _database));
-        _factory.Register("Принять", new SwapAcceptCommand(_requestService, _database));
-        _factory.Register("Отказаться", new SwapDeclineCommand(_requestService));
+        _repository.Register("/start", new StartCommand(_database));
+        _repository.Register("/addlist", new AddListCommand(_database));
+        _repository.Register("/toend", new ToEndCommand(_database));
+        _repository.Register("/list", new ListCommand(_database));
+        _repository.Register("/lists", new ListsCommand(_database));
+        _repository.Register("/removelist", new RemoveListCommand(_database));
+        _repository.Register("/swap", new SwapCommand(_requestService, _database));
+        _repository.Register("Принять", new SwapAcceptCommand(_requestService, _database));
+        _repository.Register("Отказаться", new SwapDeclineCommand(_requestService));
     }
 }

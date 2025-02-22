@@ -4,11 +4,11 @@ namespace GroupBot.Library.Commands.Parser;
 
 public class CommandParser
 {
-    private readonly CommandRepository _factory;
+    private readonly CommandRepository _repository;
 
-    public CommandParser(CommandRepository factory)
+    public CommandParser(CommandRepository repository)
     {
-        _factory = factory;
+        _repository = repository;
     }
 
     public CommandParseResult Parse(string message)
@@ -27,7 +27,7 @@ public class CommandParser
 
         string commandKey = words[0];
 
-        ICommand? command = _factory.GetCommand(commandKey);
+        ICommand? command = _repository.GetCommand(commandKey);
 
         if (command is null)
         {
