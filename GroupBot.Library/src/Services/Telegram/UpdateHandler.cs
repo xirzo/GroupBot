@@ -1,9 +1,10 @@
-﻿using Telegram.Bot;
+﻿using GroupBot.Library.Commands.Parser;
+using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace GroupBot.Library.Services;
+namespace GroupBot.Library.Services.Telegram;
 
 public class UpdateHandler : IUpdateHandler
 {

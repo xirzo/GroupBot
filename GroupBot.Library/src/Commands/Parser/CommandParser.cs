@@ -1,10 +1,12 @@
-using GroupBot.Library.Commands.Abstract;
+using GroupBot.Library.Commands.Repository;
+
+namespace GroupBot.Library.Commands.Parser;
 
 public class CommandParser
 {
-    private readonly CommandFactory _factory;
+    private readonly CommandRepository _factory;
 
-    public CommandParser(CommandFactory factory)
+    public CommandParser(CommandRepository factory)
     {
         _factory = factory;
     }

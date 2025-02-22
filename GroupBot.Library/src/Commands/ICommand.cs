@@ -1,7 +1,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace GroupBot.Library.Commands.Abstract;
+namespace GroupBot.Library.Commands;
 
 public interface ICommand
 {

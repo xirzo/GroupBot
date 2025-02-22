@@ -4,7 +4,7 @@ namespace GroupBot.Library.Services.Database;
 
 public interface IDatabaseService
 {
-    void InitializeDatabase();
+    void Initialize();
     Task<List<ChatList>> GetAllLists();
     Task<long> CreateListAndShuffle(string listName);
     Task<List<Participant>> GetAllParticipantsInList(long id);

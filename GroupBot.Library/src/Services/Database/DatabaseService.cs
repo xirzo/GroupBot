@@ -27,7 +27,7 @@ public class DatabaseService : IDatabaseService, IDisposable
         _listsSemaphore = new SemaphoreSlim(1, 1);
     }
 
-    public void InitializeDatabase()
+    public void Initialize()
     {
         _dbContext.EnsureDatabaseCreated();
 
@@ -55,7 +55,7 @@ public class DatabaseService : IDatabaseService, IDisposable
                     CreatedAt = DateTime.UtcNow
                 };
 
-                if (!_dbContext.Users.Any(u => u.TelegramId == participant.Id)) 
+                if (!_dbContext.Users.Any(u => u.TelegramId == participant.Id))
                     _dbContext.Users.Add(user);
             }
 
@@ -67,7 +67,7 @@ public class DatabaseService : IDatabaseService, IDisposable
             transaction.Rollback();
             throw;
         }
-        
+
         _dbContext.SaveChanges();
     }
 
@@ -76,11 +76,11 @@ public class DatabaseService : IDatabaseService, IDisposable
         try
         {
             await _listsSemaphore.WaitAsync();
-            
+
             _lists = await _dbContext.Lists
                 .Include(l => l.Members)
                 .ToListAsync();
-            
+
             return _lists;
         }
         finally
@@ -120,7 +120,7 @@ public class DatabaseService : IDatabaseService, IDisposable
     public async Task<long> CreateListAndShuffle(string listName)
     {
         using var transaction = _dbContext.Database.BeginTransaction();
-        
+
         try
         {
             var chatList = new ChatList
@@ -133,13 +133,13 @@ public class DatabaseService : IDatabaseService, IDisposable
             await _dbContext.SaveChangesAsync();
 
             var users = await _dbContext.Users.ToListAsync();
-            
+
             if (!users.Any())
                 throw new InvalidOperationException("No users found to add to the list.");
 
             var random = new Random();
             var position = 1;
-            
+
             foreach (var user in users.OrderBy(u => random.Next()))
             {
                 var listMember = new ListMember
@@ -148,7 +148,7 @@ public class DatabaseService : IDatabaseService, IDisposable
                     UserId = user.Id,
                     Position = position++,
                     InsertedAt = DateTime.UtcNow,
-                    List = chatList, 
+                    List = chatList,
                     User = user
                 };
                 _dbContext.ListMembers.Add(listMember);

@@ -1,5 +1,5 @@
-﻿using GroupBot.Library.Commands.Abstract;
-using GroupBot.Library.Services;
+﻿using GroupBot.Library.Commands.Parser;
+using GroupBot.Library.Commands.Repository;
 using GroupBot.Library.Services.Command;
 using GroupBot.Library.Services.Database;
 using GroupBot.Library.Services.Request;
@@ -22,15 +22,14 @@ public class Bot
                 services.AddSingleton<ITelegramService, TelegramService>();
                 services.AddSingleton<IRequestService, RequestService>();
 
-                services.AddSingleton<CommandFactory>();
+                services.AddSingleton<CommandRepository>();
                 services.AddSingleton<CommandParser>();
-                services.AddSingleton<UpdateHandler>();
 
                 var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
 
                 if (string.IsNullOrEmpty(botToken))
                 {
-                    throw new ArgumentException("Bot token is missing");
+                    throw new ArgumentNullException(nameof(botToken), "Bot token is missing");
                 }
 
                 services.AddSingleton(new TelegramBotClient(botToken));
@@ -38,7 +37,7 @@ public class Bot
             .Build();
 
         var databaseService = host.Services.GetRequiredService<IDatabaseService>();
-        databaseService.InitializeDatabase();
+        databaseService.Initialize();
 
         Console.WriteLine("Database initialized");
 
@@ -49,7 +48,6 @@ public class Bot
 
         var telegramService = host.Services.GetRequiredService<ITelegramService>();
         await telegramService.StartBot();
-
 
         await host.RunAsync();
     }

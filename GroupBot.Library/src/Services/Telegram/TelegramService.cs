@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using GroupBot.Library.Commands.Parser;
+using Telegram.Bot;
 
 namespace GroupBot.Library.Services.Telegram;
 
@@ -8,11 +9,11 @@ public class TelegramService : ITelegramService
     private readonly CancellationTokenSource _cts;
     private readonly UpdateHandler _updateHandler;
 
-    public TelegramService(TelegramBotClient botClient, UpdateHandler updateHandler)
+    public TelegramService(TelegramBotClient botClient, CommandParser parser)
     {
         _botClient = botClient;
         _cts = new CancellationTokenSource();
-        _updateHandler = updateHandler;
+        _updateHandler = new UpdateHandler(parser);
     }
 
     public async Task StartBot()

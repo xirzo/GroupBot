@@ -1,5 +1,5 @@
 ﻿using GroupBot.Library.Commands;
-using GroupBot.Library.Commands.Abstract;
+using GroupBot.Library.Commands.Repository;
 using GroupBot.Library.Services.Database;
 using GroupBot.Library.Services.Request;
 
@@ -8,10 +8,10 @@ namespace GroupBot.Library.Services.Command;
 public class CommandService : ICommandService
 {
     private readonly IDatabaseService _database;
-    private readonly CommandFactory _factory;
+    private readonly CommandRepository _factory;
     private readonly IRequestService _requestService;
 
-    public CommandService(CommandFactory factory, IDatabaseService databaseService, IRequestService requestService)
+    public CommandService(CommandRepository factory, IDatabaseService databaseService, IRequestService requestService)
     {
         _factory = factory;
         _database = databaseService;

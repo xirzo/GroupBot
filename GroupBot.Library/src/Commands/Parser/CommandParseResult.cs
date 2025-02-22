@@ -1,4 +1,4 @@
-using GroupBot.Library.Commands.Abstract;
+namespace GroupBot.Library.Commands.Parser;
 
 public record CommandParseResult
 {
