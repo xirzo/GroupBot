@@ -1,4 +1,5 @@
 using GroupBot.Library.Commands;
+using GroupBot.Library.Logging;
 using GroupBot.Library.Services.Database;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -6,10 +7,12 @@ using Telegram.Bot.Types;
 public class AddAdminCommand : ICommand
 {
     private readonly IDatabaseService _database;
+    private readonly ILogger _logger;
 
-    public AddAdminCommand(IDatabaseService database)
+    public AddAdminCommand(IDatabaseService database, ILogger logger)
     {
         _database = database;
+        _logger = logger;
     }
 
     public long NumberOfArguments => 1;
@@ -35,7 +38,7 @@ public class AddAdminCommand : ICommand
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.Error(e);
             await bot.SendMessage(
                 chatId: message.Chat.Id,
                 text: "❌ Ошибка при добавлении нового админа",

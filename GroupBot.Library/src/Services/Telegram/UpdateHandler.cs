@@ -1,4 +1,5 @@
 ﻿using GroupBot.Library.Commands.Parser;
+using GroupBot.Library.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -9,10 +10,12 @@ namespace GroupBot.Library.Services.Telegram;
 public class UpdateHandler : IUpdateHandler
 {
     private readonly CommandParser _parser;
+    private readonly ILogger _logger;
 
-    public UpdateHandler(CommandParser parser)
+    public UpdateHandler(CommandParser parser, ILogger logger)
     {
         _parser = parser;
+        _logger = logger;
     }
 
     public Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
@@ -26,7 +29,7 @@ public class UpdateHandler : IUpdateHandler
 
         if (!parseResult.Success)
         {
-            Console.WriteLine(parseResult.ErrorMessage);
+            _logger.Error(parseResult.ErrorMessage);
 
             botClient.SendMessage(
                  chatId: update.Message.Chat.Id,
@@ -42,7 +45,7 @@ public class UpdateHandler : IUpdateHandler
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source,
         CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Error: {exception.Message}");
+        _logger.Error($"Error: {exception.Message}");
         return Task.CompletedTask;
     }
 }

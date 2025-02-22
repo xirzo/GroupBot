@@ -1,3 +1,4 @@
+using GroupBot.Library.Logging;
 using GroupBot.Library.Services.Database;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -7,10 +8,12 @@ namespace GroupBot.Library.Commands;
 public class SiftCommand : ICommand
 {
     private readonly IDatabaseService _database;
+    private readonly ILogger _logger;
 
-    public SiftCommand(IDatabaseService database)
+    public SiftCommand(IDatabaseService database, ILogger logger)
     {
         _database = database;
+        _logger = logger;
     }
 
     public long NumberOfArguments => 2;
@@ -61,7 +64,7 @@ public class SiftCommand : ICommand
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.Error(e);
             await bot.SendMessage(message.Chat.Id, "❌ Не удалось выполнить просеивание");
             return;
         }

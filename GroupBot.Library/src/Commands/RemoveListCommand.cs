@@ -1,4 +1,5 @@
-﻿using GroupBot.Library.Services.Database;
+﻿using GroupBot.Library.Logging;
+using GroupBot.Library.Services.Database;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -7,10 +8,12 @@ namespace GroupBot.Library.Commands;
 public class RemoveListCommand : ICommand
 {
     private readonly IDatabaseService _database;
+    private readonly ILogger _logger;
 
-    public RemoveListCommand(IDatabaseService database)
+    public RemoveListCommand(IDatabaseService database, ILogger logger)
     {
         _database = database;
+        _logger = logger;
     }
 
     public long NumberOfArguments => 1;
@@ -67,7 +70,7 @@ public class RemoveListCommand : ICommand
                 text: "❌ Произошла ошибка при удалении списка.",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
 
-            Console.WriteLine(ex);
+            _logger.Error(ex);
         }
     }
 }

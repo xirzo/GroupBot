@@ -1,5 +1,6 @@
 ﻿using GroupBot.Library.Commands.Parser;
 using GroupBot.Library.Commands.Repository;
+using GroupBot.Library.Logging;
 using GroupBot.Library.Services.Command;
 using GroupBot.Library.Services.Database;
 using GroupBot.Library.Services.Request;
@@ -25,6 +26,8 @@ public class Bot
 
                 services.AddSingleton<CommandRepository>();
                 services.AddSingleton<CommandParser>();
+
+                services.AddSingleton<ILogger, Logger>();
 
                 var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
 
