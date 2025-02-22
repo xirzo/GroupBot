@@ -74,8 +74,8 @@ public class SwapCommand : ICommand
             return;
         }
 
-        var userDbId = await _db.GetParticipantIdByTelegramId(user.Id);
-        var targetUserDbId = await _db.GetParticipantIdByTelegramId(targetUser.Id);
+        var userDbId = await _db.GetUserIdByTelegramId(user.Id);
+        var targetUserDbId = await _db.GetUserIdByTelegramId(targetUser.Id);
 
         var pendingRequest = new PendingRequest(targetUser.Id, userDbId, targetUserDbId, list.Id);
 

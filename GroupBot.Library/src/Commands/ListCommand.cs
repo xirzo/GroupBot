@@ -34,7 +34,7 @@ public class ListCommand : ICommand
             return;
         }
 
-        var participants = await _db.GetAllParticipantsInList(list.Id);
+        var participants = await _db.GetAllListMembers(list.Id);
 
         var text = new StringBuilder();
 
