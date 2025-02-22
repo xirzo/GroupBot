@@ -1,6 +1,4 @@
-﻿using GroupBot.Library.Models;
-
-namespace GroupBot.Library.Services.Request;
+﻿namespace GroupBot.Library.Services.Request;
 
 public class RequestService : IRequestService
 {

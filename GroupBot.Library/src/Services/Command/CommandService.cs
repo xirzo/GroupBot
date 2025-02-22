@@ -11,9 +11,9 @@ public class CommandService : ICommandService
     private readonly CommandRepository _repository;
     private readonly IRequestService _requestService;
 
-    public CommandService(CommandRepository factory, IDatabaseService databaseService, IRequestService requestService)
+    public CommandService(CommandRepository repository, IDatabaseService databaseService, IRequestService requestService)
     {
-        _repository = factory;
+        _repository = repository;
         _database = databaseService;
         _requestService = requestService;
     }
