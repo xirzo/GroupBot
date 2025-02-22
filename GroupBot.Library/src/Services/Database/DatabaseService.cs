@@ -69,6 +69,7 @@ public class DatabaseService : IDatabaseService, IDisposable
         }
 
         _dbContext.SaveChanges();
+        Console.WriteLine("Database initialized");
     }
 
     public async Task<List<ChatList>> GetAllLists()

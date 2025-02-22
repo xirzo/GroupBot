@@ -138,4 +138,5 @@ _NCrunch*
 .vscode/
 appsettings.json
 participants.json
+admins.json
 *.db
