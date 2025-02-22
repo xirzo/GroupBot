@@ -90,10 +90,10 @@ public class DatabaseService : IDatabaseService, IDisposable
     }
 
 
-    public async Task<List<Participant>> GetAllParticipantsInList(long id)
+    public async Task<List<Participant>> GetAllListMembers(long listId)
     {
         return await _dbContext.ListMembers
-            .Where(lm => lm.ListId == id)
+            .Where(lm => lm.ListId == listId)
             .Include(lm => lm.User)
             .OrderBy(lm => lm.Position)
             .Select(lm => new Participant
@@ -106,13 +106,13 @@ public class DatabaseService : IDatabaseService, IDisposable
     }
 
 
-    public async Task<long> GetParticipantIdByTelegramId(long id)
+    public async Task<long> GetUserIdByTelegramId(long telegramId)
     {
         var user = await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.TelegramId == id);
+            .FirstOrDefaultAsync(u => u.TelegramId == telegramId);
 
         if (user == null)
-            throw new InvalidOperationException($"User with Telegram ID {id} does not exist.");
+            throw new InvalidOperationException($"User with Telegram ID {telegramId} does not exist.");
 
         return user.Id;
     }
@@ -217,15 +217,15 @@ public class DatabaseService : IDatabaseService, IDisposable
         }
     }
 
-    public async Task SwapParticipantsInList(long id, long userDbId, long targetDbId)
+    public async Task SwapParticipantsInList(long listId, long userId, long targetUsedId)
     {
         using var transaction = _dbContext.Database.BeginTransaction();
         try
         {
             var userMember = await _dbContext.ListMembers
-                .FirstOrDefaultAsync(lm => lm.ListId == id && lm.UserId == userDbId);
+                .FirstOrDefaultAsync(lm => lm.ListId == listId && lm.UserId == userId);
             var targetMember = await _dbContext.ListMembers
-                .FirstOrDefaultAsync(lm => lm.ListId == id && lm.UserId == targetDbId);
+                .FirstOrDefaultAsync(lm => lm.ListId == listId && lm.UserId == targetUsedId);
 
             if (userMember == null || targetMember == null)
                 throw new InvalidOperationException("One or both users not found in the list.");
