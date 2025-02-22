@@ -21,6 +21,7 @@ public class Bot
                 services.AddSingleton<IDatabaseService, DatabaseService>();
                 services.AddSingleton<ITelegramService, TelegramService>();
                 services.AddSingleton<IRequestService, RequestService>();
+                services.AddSingleton<AdminLoadService>();
 
                 services.AddSingleton<CommandRepository>();
                 services.AddSingleton<CommandParser>();
@@ -39,12 +40,11 @@ public class Bot
         var databaseService = host.Services.GetRequiredService<IDatabaseService>();
         databaseService.Initialize();
 
-        Console.WriteLine("Database initialized");
-
         var commandService = host.Services.GetRequiredService<ICommandService>();
         commandService.RegisterCommands();
 
-        Console.WriteLine("Commands registered");
+        var adminLoadService = host.Services.GetRequiredService<AdminLoadService>();
+        await adminLoadService.LoadConfig();
 
         var telegramService = host.Services.GetRequiredService<ITelegramService>();
         await telegramService.StartBot();

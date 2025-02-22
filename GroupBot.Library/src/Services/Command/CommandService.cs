@@ -32,5 +32,7 @@ public class CommandService : ICommandService
         _repository.Register("/sift", new SiftCommand(_database));
         _repository.Register("/help", new HelpCommand());
         _repository.Register("/addadmin", new AddAdminCommand(_database));
+
+        Console.WriteLine("Commands registered");
     }
 }
