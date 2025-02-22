@@ -324,40 +324,43 @@ public class DatabaseService : IDatabaseService, IDisposable
                 }
 
                 var targetMember = members.FirstOrDefault(m => m.User.FullName == userName);
+
                 if (targetMember == null)
                 {
                     throw new InvalidOperationException($"Участник {userName} не найден в списке");
                 }
 
-                var membersToMove = members
-                    .TakeWhile(m => m.Position <= targetMember.Position)
+                var beforeTarget = members
+                    .Where(m => m.Position < targetMember.Position)
+                    .Reverse()
                     .ToList();
 
-                var remainingMembers = members
-                    .Skip(membersToMove.Count)
+                var afterTarget = members
+                    .Where(m => m.Position > targetMember.Position)
                     .ToList();
 
                 var position = 1;
 
-                foreach (var member in remainingMembers)
+                foreach (var member in afterTarget)
                 {
                     member.Position = position++;
                 }
 
-                foreach (var member in membersToMove)
+                targetMember.Position = position++;
+
+                foreach (var member in beforeTarget)
                 {
                     member.Position = position++;
                 }
 
                 await _dbContext.SaveChangesAsync();
-
                 transaction.Commit();
 
                 var list = _lists.FirstOrDefault(l => l.Id == listId);
 
                 if (list != null)
                 {
-                    list.Members = members;
+                    list.Members = members.OrderBy(m => m.Position).ToList();
                 }
             }
             catch
