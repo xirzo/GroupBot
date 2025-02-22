@@ -30,6 +30,7 @@ public class CommandService : ICommandService
         _repository.Register("Принять", new SwapAcceptCommand(_requestService, _database));
         _repository.Register("Отказаться", new SwapDeclineCommand(_requestService));
         _repository.Register("/sift", new SiftCommand(_database));
+        _repository.Register("/help", new HelpCommand());
         _repository.Register("/addadmin", new AddAdminCommand(_database));
     }
 }
