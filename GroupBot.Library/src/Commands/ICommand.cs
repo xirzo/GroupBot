@@ -5,6 +5,7 @@ namespace GroupBot.Library.Commands;
 
 public interface ICommand
 {
+    string GetString();
     long NumberOfArguments { get; }
-    Task Execute(Message message, ITelegramBotClient bot, string[] parameters);
+    Task Execute(ValidatedMessage message, ITelegramBotClient bot, string[] parameters);
 }
