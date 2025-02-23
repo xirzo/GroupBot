@@ -17,9 +17,15 @@ public class RemoveListCommand : ICommand
     }
 
     public long NumberOfArguments => 1;
+    
+    public string GetString() => "/removelist";
 
-    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
+    public async Task Execute(ValidatedMessage message, ITelegramBotClient bot, string[] parameters)
     {
+        var requestingUser = message.From?.Username ?? "unknown";
+        
+        _logger.Info(LogMessages.CommandStarted(GetString(), requestingUser, null, message.Chat.Id));
+        
         try
         {
             var admins = await _database.GetAllAdmins();
@@ -30,9 +36,9 @@ public class RemoveListCommand : ICommand
                     chatId: message.Chat.Id,
                     text: "❌ У вас нет прав на выполнение этой команды",
                     replyParameters: new ReplyParameters { MessageId = message.MessageId });
+                _logger.Warn(LogMessages.AccessDenied(GetString(), requestingUser));
                 return;
             }
-
 
             var lists = await _database.GetAllLists();
 
@@ -42,10 +48,12 @@ public class RemoveListCommand : ICommand
                     chatId: message.Chat.Id,
                     text: "❌ Списки не найдены.",
                     replyParameters: new ReplyParameters { MessageId = message.MessageId });
+                
+                _logger.Warn(LogMessages.NotFound("Lists", requestingUser));
                 return;
             }
 
-            var list = lists.FirstOrDefault(l => l.Name.Equals(parameters[0], StringComparison.OrdinalIgnoreCase));
+            var list = lists.Find(l => l.Name.Equals(parameters[0], StringComparison.OrdinalIgnoreCase));
 
             if (list == null)
             {
@@ -53,6 +61,7 @@ public class RemoveListCommand : ICommand
                     chatId: message.Chat.Id,
                     text: $"❌ Список с названием \"{parameters[0]}\" не найден.",
                     replyParameters: new ReplyParameters { MessageId = message.MessageId });
+                _logger.Warn(LogMessages.NotFound(parameters[0], requestingUser));
                 return;
             }
 
@@ -62,6 +71,8 @@ public class RemoveListCommand : ICommand
                 chatId: message.Chat.Id,
                 text: $"✅ Список \"{list.Name}\" успешно удален.",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
+            
+            _logger.Info(LogMessages.CommandCompleted(GetString(), requestingUser, null));
         }
         catch (Exception ex)
         {
@@ -69,8 +80,8 @@ public class RemoveListCommand : ICommand
                 chatId: message.Chat.Id,
                 text: "❌ Произошла ошибка при удалении списка.",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
-
-            _logger.Error(ex);
+            _logger.Error(LogMessages.DatabaseOperationFailed(GetString(), requestingUser, requestingUser, ex));
         }
+        
     }
 }

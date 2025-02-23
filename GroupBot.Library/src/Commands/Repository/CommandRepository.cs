@@ -4,9 +4,9 @@ public class CommandRepository
 {
     private readonly Dictionary<string, ICommand> _commands = new();
 
-    public void Register(string commandKeyword, ICommand command)
+    public void Register(ICommand command)
     {
-        _commands[commandKeyword] = command;
+        _commands[command.GetString()] = command;
     }
 
     public ICommand? GetCommand(string text)

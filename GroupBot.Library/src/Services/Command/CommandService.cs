@@ -23,18 +23,17 @@ public class CommandService : ICommandService
 
     public void RegisterCommands()
     {
-        _repository.Register("/start", new StartCommand(_database));
-        _repository.Register("/addlist", new AddListCommand(_database));
-        _repository.Register("/toend", new ToEndCommand(_database));
-        _repository.Register("/list", new ListCommand(_database));
-        _repository.Register("/lists", new ListsCommand(_database));
-        _repository.Register("/removelist", new RemoveListCommand(_database, _logger));
-        _repository.Register("/swap", new SwapCommand(_requestService, _database));
-        _repository.Register("Принять", new SwapAcceptCommand(_requestService, _database));
-        _repository.Register("Отказаться", new SwapDeclineCommand(_requestService));
-        _repository.Register("/sift", new SiftCommand(_database, _logger));
-        _repository.Register("/help", new HelpCommand());
-        _repository.Register("/addadmin", new AddAdminCommand(_database, _logger));
+        _repository.Register(new AddListCommand(_database, _logger));
+        _repository.Register(new ToEndCommand(_database, _logger));
+        _repository.Register(new ListCommand(_database, _logger));
+        _repository.Register(new ListsCommand(_database, _logger));
+        _repository.Register(new RemoveListCommand(_database, _logger));
+        _repository.Register(new SwapCommand(_requestService, _database, _logger));
+        _repository.Register(new SwapAcceptCommand(_requestService, _database, _logger));
+        _repository.Register(new SwapDeclineCommand(_requestService, _logger));
+        _repository.Register(new SiftCommand(_database, _logger));
+        _repository.Register(new HelpCommand(_logger));
+        _repository.Register(new AddAdminCommand(_database, _logger));
 
         _logger.Info("Command Service initialized");
     }

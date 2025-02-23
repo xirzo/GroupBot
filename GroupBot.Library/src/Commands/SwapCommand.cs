@@ -1,3 +1,4 @@
+using GroupBot.Library.Logging;
 using GroupBot.Library.Services.Database;
 using GroupBot.Library.Services.Request;
 using Telegram.Bot;
@@ -10,20 +11,25 @@ public class SwapCommand : ICommand
 {
     private readonly IRequestService _requestService;
     private readonly IDatabaseService _db;
+    private readonly ILogger _logger;
 
-    public SwapCommand(IRequestService requestService, IDatabaseService db)
+    public SwapCommand(IRequestService requestService, IDatabaseService db, ILogger logger)
     {
         _requestService = requestService;
         _db = db;
+        _logger = logger;
     }
 
     public long NumberOfArguments => 1;
 
-    public async Task Execute(Message message, ITelegramBotClient bot, string[] parameters)
+    public string GetString() => "/swap";
+
+    public async Task Execute(ValidatedMessage message, ITelegramBotClient bot, string[] parameters)
     {
-        var words = message.Text?.Split(' ');
-
-
+        var requestingUser = message.From?.Username ?? "unknown";
+        
+        _logger.Info(LogMessages.CommandStarted(GetString(), requestingUser, null, message.Chat.Id));
+        
         var replyParameters = new ReplyParameters
         {
             MessageId = message.MessageId
@@ -35,7 +41,7 @@ public class SwapCommand : ICommand
         {
             await bot.SendMessage(message.Chat.Id, "❌ Пользователь запрашивающий команду не найден",
                 replyParameters: replyParameters);
-
+            _logger.Warn(LogMessages.NotFound(requestingUser, requestingUser));
             return;
         }
 
@@ -45,6 +51,7 @@ public class SwapCommand : ICommand
         {
             await bot.SendMessage(message.Chat.Id, "❌ Вам нужно ответить на сообщение человека из списка команд",
                 replyParameters: replyParameters);
+            _logger.Warn(LogMessages.ErrorOccurred("Must reply to person from list", requestingUser));
             return;
         }
 
@@ -53,10 +60,18 @@ public class SwapCommand : ICommand
         if (lists.Count == 0)
         {
             await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
+            _logger.Warn(LogMessages.NotFound("Lists", requestingUser));
             return;
         }
 
-        var list = lists.First(l => l.Name == parameters[0]);
+        var list = lists.Find(l => l.Name == parameters[0]);
+        
+        if (list is null)
+        { 
+            await bot.SendMessage(message.Chat.Id, "❌ Не найден список с таким именем."); 
+            _logger.Warn(LogMessages.NotFound(parameters[0], requestingUser));
+            return;
+        }
 
         var targetUser = replyToMessage.From;
 
@@ -64,6 +79,7 @@ public class SwapCommand : ICommand
         {
             await bot.SendMessage(message.Chat.Id, "❌ Не удалось определить пользователя для обмена",
                 replyParameters: replyParameters);
+            _logger.Warn(LogMessages.ErrorOccurred("targetUser is null", requestingUser));
             return;
         }
 
@@ -71,6 +87,7 @@ public class SwapCommand : ICommand
         {
             await bot.SendMessage(message.Chat.Id, "❌ Вы не можете отправить запрос самому себе",
                 replyParameters: replyParameters);
+            _logger.Warn(LogMessages.ErrorOccurred("Cannot swap with self", requestingUser));
             return;
         }
 
@@ -86,5 +103,6 @@ public class SwapCommand : ICommand
         await bot.SendMessage(targetUser.Id,
             $"📝 {user.Username} отправил тебе swap-запрос в списке {list.Name}",
             replyMarkup: replyMarkup);
+        _logger.Info(LogMessages.CommandCompleted(GetString(), requestingUser, targetUser.Username));
     }
 }

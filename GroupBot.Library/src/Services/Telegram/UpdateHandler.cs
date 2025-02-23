@@ -1,4 +1,5 @@
-﻿using GroupBot.Library.Commands.Parser;
+﻿using GroupBot.Library.Commands;
+using GroupBot.Library.Commands.Parser;
 using GroupBot.Library.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -20,12 +21,12 @@ public class UpdateHandler : IUpdateHandler
 
     public Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (update.Type != UpdateType.Message || update.Message is null || string.IsNullOrEmpty(update.Message.Text) || update.Message.Text[0] != '/')
+        if (update.Type != UpdateType.Message || update.Message is null || update.Message.From is null || string.IsNullOrEmpty(update.Message.Text) || update.Message.Text[0] != '/')
         {
             return Task.CompletedTask;
         }
 
-        CommandParseResult parseResult = _parser.Parse(update.Message.Text);
+        var parseResult = _parser.Parse(update.Message.Text);
 
         if (!parseResult.Success)
         {
@@ -34,12 +35,20 @@ public class UpdateHandler : IUpdateHandler
             botClient.SendMessage(
                  chatId: update.Message.Chat.Id,
                  text: parseResult.ErrorMessage,
-                 replyParameters: new ReplyParameters { MessageId = update.Message.MessageId });
+                 replyParameters: new ReplyParameters { MessageId = update.Message.MessageId }, cancellationToken: cancellationToken);
 
             return Task.CompletedTask;
         }
 
-        return parseResult.Command.Execute(update.Message, botClient, parseResult.Parameters);
+        var validated = ValidatedMessage.FromTelegramMessage(update.Message);
+
+        if (validated == null)
+        {
+            _logger.Error($"Cannot validate the message {update.Message}");
+            return Task.CompletedTask;
+        }
+
+        return parseResult.Command.Execute(validated, botClient, parseResult.Parameters);
     }
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source,
