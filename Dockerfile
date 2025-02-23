@@ -23,6 +23,10 @@ COPY --from=build /app .
 
 RUN chmod -R 777 /app
 
+RUN mkdir -p /app/logs
+
+RUN chmod 755 /app/logs
+
 USER $APP_UID
 
 ENTRYPOINT ["dotnet", "GroupBot.Program.dll"]

@@ -24,6 +24,14 @@ public class Bot
                 services.AddSingleton<IRequestService, RequestService>();
                 services.AddSingleton<AdminLoadService>();
 
+                services.AddSingleton(new LoggerConfiguration
+                {
+                    EnableConsoleLogging = true,
+                    EnableFileLogging = true,
+                    LogFileDirectory = "/app/logs",
+                    LogFilePrefix = "groupbot"
+                });
+
                 services.AddSingleton<CommandRepository>();
                 services.AddSingleton<CommandParser>();
 

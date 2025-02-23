@@ -4,11 +4,11 @@ public class LoggerConfiguration
 {
     public bool EnableConsoleLogging { get; set; } = true;
     public bool EnableFileLogging { get; set; } = false;
-    private string _logFileDirectory = "logs";
+    private string _logFileDirectory = "/app/logs";
     public string LogFileDirectory
     {
         get => _logFileDirectory;
-        set => _logFileDirectory = string.IsNullOrWhiteSpace(value) ? "logs" : value;
+        set => _logFileDirectory = string.IsNullOrWhiteSpace(value) ? "/app/logs" : value;
     }
     private string _logFilePrefix = "application";
     public string LogFilePrefix

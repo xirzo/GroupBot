@@ -1,5 +1,6 @@
 ﻿using System.Data.Entity;
 using System.Text.Json;
+using GroupBot.Library.Logging;
 using GroupBot.Library.Models;
 using Microsoft.Extensions.Configuration;
 
@@ -9,10 +10,11 @@ public class DatabaseService : IDatabaseService, IDisposable
 {
     private readonly BotDbContext _dbContext;
     private readonly SemaphoreSlim _listsSemaphore;
+    private readonly ILogger _logger;
     private List<Participant> _admins;
     private List<ChatList> _lists;
 
-    public DatabaseService(IConfiguration config)
+    public DatabaseService(IConfiguration config, ILogger logger)
     {
         var dbPath = config.GetSection("Database")["Path"];
 
@@ -25,6 +27,7 @@ public class DatabaseService : IDatabaseService, IDisposable
         _admins = [];
         _lists = [];
         _listsSemaphore = new SemaphoreSlim(1, 1);
+        _logger = logger;
     }
 
     public void Initialize()
@@ -69,7 +72,8 @@ public class DatabaseService : IDatabaseService, IDisposable
         }
 
         _dbContext.SaveChanges();
-        Console.WriteLine("Database initialized");
+
+        _logger.Info("Database initialized");
     }
 
     public async Task<List<ChatList>> GetAllLists()
