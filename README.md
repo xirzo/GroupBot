@@ -46,7 +46,7 @@ GroupBot — это Telegram-бот для эффективного управл
       GroupBot/GroupBot.Program/participants.json
       ```
 
-    - Создайте файл `admins.json` со списком ID администраторов и поместите его в:
+    - Создайте файл `admins.json` со списком ID администраторов (ID - это место человека в `participants.json`) и поместите его в:
 
       ```plaintext
       GroupBot/GroupBot.Program/admins.json
