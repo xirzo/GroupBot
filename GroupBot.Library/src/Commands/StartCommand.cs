@@ -4,7 +4,6 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using ILogger = Castle.Core.Logging.ILogger;
 
 namespace GroupBot.Library.Commands;
 
@@ -20,15 +19,15 @@ public class StartCommand : ICommand
     }
 
     public long NumberOfArguments => 0;
-    
+
     public string GetString() => "/start";
 
     public async Task Execute(ValidatedMessage message, ITelegramBotClient bot, string[] parameters)
     {
         var requestingUser = message.From?.Username ?? "unknown";
-        
+
         _logger.Info(LogMessages.CommandStarted(GetString(), requestingUser, null, message.Chat.Id));
-        
+
         if (message.Chat.Type != ChatType.Private)
         {
             await bot.SendMessage(message.Chat.Id, "❌ Используйте команду в личном чате",
