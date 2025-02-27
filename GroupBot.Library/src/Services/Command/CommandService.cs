@@ -34,6 +34,7 @@ public class CommandService : ICommandService
         _repository.Register(new SiftCommand(_database, _logger));
         _repository.Register(new HelpCommand(_logger));
         _repository.Register(new AddAdminCommand(_database, _logger));
+        _repository.Register(new StartCommand(_database, _logger));
 
         _logger.Info("Command Service initialized");
     }
