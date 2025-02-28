@@ -21,16 +21,16 @@ public class SwapAcceptCommand : ICommand
     }
 
     public long NumberOfArguments => 0;
-    
+
     public string GetString() => "Принять";
 
     public async Task Execute(ValidatedMessage message, ITelegramBotClient bot, string[] parameters)
     {
         var requestingUser = message.From?.Username ?? "unknown";
-        var targetUser = message.From;        
-        
+        var targetUser = message.From;
+
         _logger.Info(LogMessages.CommandStarted(GetString(), requestingUser, targetUser?.Username, message.Chat.Id));
-        
+
         var replyParameters = new ReplyParameters
         {
             MessageId = message.MessageId
@@ -63,10 +63,12 @@ public class SwapAcceptCommand : ICommand
         var lists = await _db.GetAllLists();
 
         var list = lists.Find(l => l.Id == pendingRequest.Value.ListDbId);
-        
+
         if (list is null)
         {
-            await bot.SendMessage(message.Chat.Id, "❌ Не найден список с таким айди.");
+            await bot.SendMessage(message.Chat.Id, "❌ Не найден список с таким айди.",
+                replyParameters: new ReplyParameters { MessageId = message.MessageId }
+            );
             _logger.Warn(LogMessages.NotFound(pendingRequest.Value.ListDbId.ToString(), requestingUser));
             return;
         }

@@ -1,5 +1,4 @@
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
 namespace GroupBot.Library.Commands;
 

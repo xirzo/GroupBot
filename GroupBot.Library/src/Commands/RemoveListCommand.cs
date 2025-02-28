@@ -17,15 +17,15 @@ public class RemoveListCommand : ICommand
     }
 
     public long NumberOfArguments => 1;
-    
+
     public string GetString() => "/removelist";
 
     public async Task Execute(ValidatedMessage message, ITelegramBotClient bot, string[] parameters)
     {
         var requestingUser = message.From?.Username ?? "unknown";
-        
+
         _logger.Info(LogMessages.CommandStarted(GetString(), requestingUser, null, message.Chat.Id));
-        
+
         try
         {
             var admins = await _database.GetAllAdmins();
@@ -48,7 +48,7 @@ public class RemoveListCommand : ICommand
                     chatId: message.Chat.Id,
                     text: "❌ Списки не найдены.",
                     replyParameters: new ReplyParameters { MessageId = message.MessageId });
-                
+
                 _logger.Warn(LogMessages.NotFound("Lists", requestingUser));
                 return;
             }
@@ -71,7 +71,7 @@ public class RemoveListCommand : ICommand
                 chatId: message.Chat.Id,
                 text: $"✅ Список \"{list.Name}\" успешно удален.",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
-            
+
             _logger.Info(LogMessages.CommandCompleted(GetString(), requestingUser, null));
         }
         catch (Exception ex)
@@ -82,6 +82,6 @@ public class RemoveListCommand : ICommand
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
             _logger.Error(LogMessages.DatabaseOperationFailed(GetString(), requestingUser, requestingUser, ex));
         }
-        
+
     }
 }

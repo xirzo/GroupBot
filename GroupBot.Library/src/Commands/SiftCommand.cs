@@ -17,16 +17,16 @@ public class SiftCommand : ICommand
     }
 
     public long NumberOfArguments => 2;
-    
+
     public string GetString() => "/sift";
-    
+
     public async Task Execute(ValidatedMessage message, ITelegramBotClient bot, string[] parameters)
     {
         var requestingUser = message.From?.Username ?? "unknown";
-        var targetUser = parameters[0];        
-        
+        var targetUser = parameters[0];
+
         _logger.Info(LogMessages.CommandStarted(GetString(), requestingUser, targetUser, message.Chat.Id));
-        
+
         var admins = await _database.GetAllAdmins();
 
         if (admins.Exists(p => message.From != null && p.Id == message.From.Id) == false)
@@ -35,7 +35,7 @@ public class SiftCommand : ICommand
                 chatId: message.Chat.Id,
                 text: "❌ У вас нет прав на выполнение этой команды",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
-            
+
             _logger.Warn(LogMessages.AccessDenied(GetString(), requestingUser));
             return;
         }
@@ -48,7 +48,7 @@ public class SiftCommand : ICommand
                 chatId: message.Chat.Id,
                 text: "❌ Списки не найдены.",
                 replyParameters: new ReplyParameters { MessageId = message.MessageId });
-            
+
             _logger.Warn(LogMessages.NotFound("Lists", requestingUser));
             return;
         }
@@ -57,7 +57,9 @@ public class SiftCommand : ICommand
 
         if (list is null)
         {
-            await bot.SendMessage(message.Chat.Id, "❌ Не найден список с таким именем.");
+            await bot.SendMessage(message.Chat.Id, "❌ Не найден список с таким именем.",
+                replyParameters: new ReplyParameters { MessageId = message.MessageId }
+            );
             _logger.Warn(LogMessages.NotFound(parameters[0], requestingUser));
             return;
         }
@@ -67,7 +69,9 @@ public class SiftCommand : ICommand
 
         if (member is null)
         {
-            await bot.SendMessage(message.Chat.Id, "❌ Не существует человека с таким ФИО. /sift <название_списка> <фио_человека>");
+            await bot.SendMessage(message.Chat.Id, "❌ Не существует человека с таким ФИО. /sift <название_списка> <фио_человека>",
+                replyParameters: new ReplyParameters { MessageId = message.MessageId }
+            );
             _logger.Warn(LogMessages.NotFound(parameters[1], requestingUser));
             return;
         }
@@ -78,12 +82,16 @@ public class SiftCommand : ICommand
         }
         catch (Exception ex)
         {
-            await bot.SendMessage(message.Chat.Id, "❌ Не удалось выполнить просеивание");
+            await bot.SendMessage(message.Chat.Id, "❌ Не удалось выполнить просеивание",
+                replyParameters: new ReplyParameters { MessageId = message.MessageId }
+            );
             _logger.Error(LogMessages.DatabaseOperationFailed(GetString(), requestingUser, requestingUser, ex));
             return;
         }
 
-        await bot.SendMessage(message.Chat.Id, "✅ Просеивание успешно выполнено");
+        await bot.SendMessage(message.Chat.Id, "✅ Просеивание успешно выполнено",
+            replyParameters: new ReplyParameters { MessageId = message.MessageId }
+        );
         _logger.Info(LogMessages.CommandCompleted(GetString(), requestingUser, targetUser));
     }
 }

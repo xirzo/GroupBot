@@ -23,8 +23,8 @@ public class AddAdminCommand : ICommand
         var admins = await _database.GetAllAdmins();
 
         var requestingUser = message.From?.Username ?? "unknown";
-        var targetUser = parameters[0];        
-        
+        var targetUser = parameters[0];
+
         _logger.Info(LogMessages.CommandStarted(GetString(), requestingUser, targetUser, message.Chat.Id));
 
         if (admins.Exists(p => message.From != null && p.Id == message.From.Id) == false)
@@ -52,7 +52,7 @@ public class AddAdminCommand : ICommand
             _logger.Error(LogMessages.DatabaseOperationFailed(GetString(), targetUser, requestingUser, e));
             return;
         }
-        
+
         _logger.Info(LogMessages.DatabaseOperationSuccess(GetString(), targetUser, requestingUser, userId));
 
         await bot.SendMessage(

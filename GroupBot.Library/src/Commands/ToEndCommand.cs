@@ -1,6 +1,7 @@
 using GroupBot.Library.Logging;
 using GroupBot.Library.Services.Database;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 
 namespace GroupBot.Library.Commands;
 
@@ -21,36 +22,42 @@ public class ToEndCommand : ICommand
     public async Task Execute(ValidatedMessage message, ITelegramBotClient bot, string[] parameters)
     {
         var requestingUser = message.From?.Username ?? "unknown";
-        
+
         _logger.Info(LogMessages.CommandStarted(GetString(), requestingUser, null, message.Chat.Id));
 
         var lists = await _db.GetAllLists();
 
         if (lists.Count == 0)
         {
-            await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.");
+            await bot.SendMessage(message.Chat.Id, "❌ Списки не найдены.",
+                replyParameters: new ReplyParameters { MessageId = message.MessageId }
+            );
             _logger.Warn(LogMessages.NotFound("Lists", requestingUser));
             return;
         }
 
         var list = lists.Find(l => l.Name == parameters[0]);
-        
+
         if (list is null)
-        { 
-            await bot.SendMessage(message.Chat.Id, "❌ Не найден список с таким именем."); 
+        {
+            await bot.SendMessage(message.Chat.Id, "❌ Не найден список с таким именем.",
+                replyParameters: new ReplyParameters { MessageId = message.MessageId }
+            );
             _logger.Warn(LogMessages.NotFound(parameters[0], requestingUser));
             return;
         }
 
         if (message.From == null)
         {
-            await bot.SendMessage(message.Chat.Id, "❌ Пользователь не найден");
+            await bot.SendMessage(message.Chat.Id, "❌ Пользователь не найден",
+                replyParameters: new ReplyParameters { MessageId = message.MessageId }
+            );
             _logger.Warn(LogMessages.NotFound("message.From", requestingUser));
             return;
         }
 
         await _db.MoveUserToEndOfList(list.Id, message.From.Id);
-        
+
         _logger.Info(LogMessages.CommandCompleted(GetString(), requestingUser, null));
     }
 
