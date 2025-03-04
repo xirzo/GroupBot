@@ -21,11 +21,11 @@ WORKDIR /app
 
 COPY --from=build /app .
 
-RUN chmod -R 777 /app
+RUN addgroup -g 1000 botuser && \
+    adduser -u 1000 -G botuser -s /bin/sh -D botuser
 
-RUN mkdir -p /app/logs
-
-RUN chmod 755 /app/logs
+RUN mkdir -p /app/logs && \
+    chown -R botuser:botuser /app
 
 USER $APP_UID
 
