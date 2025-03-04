@@ -24,6 +24,7 @@ public class Bot
                 services.AddSingleton<ITelegramService, TelegramService>();
                 services.AddSingleton<IRequestService, RequestService>();
                 services.AddSingleton<AdminLoadService>();
+                services.AddSingleton<LowPriorityUserLoader>();
 
                 services.AddSingleton(new LoggerConfiguration
                 {

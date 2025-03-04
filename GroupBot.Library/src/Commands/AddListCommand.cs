@@ -52,7 +52,7 @@ public class AddListCommand : ICommand
 
         try
         {
-            id = await _db.CreateListAndShuffle(parameters[0]);
+            id = await _db.CreateListIncludingLowerPriorityAndShuffle(parameters[0]);
         }
         catch (Exception e)
         {
