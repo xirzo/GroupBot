@@ -52,7 +52,13 @@ GroupBot — это Telegram-бот для эффективного управл
       GroupBot/GroupBot.Program/admins.json
       ```
 
-      Пример содержимого `admins.json`:
+    - Создайте файл `lp_users.json` со списком ID людей, которых нужно отправлять в конец (ID - это место человека в `participants.json`) и поместите его в:
+
+      ```plaintext
+      GroupBot/GroupBot.Program/lp_users.json
+      ```
+
+      Пример содержимого `admins.json/lp_users`:
 
       ```json
       [
