@@ -2,12 +2,14 @@ using System.Text.Json;
 using GroupBot.Library.Logging;
 using GroupBot.Library.Services.Database;
 
-public class AdminLoadService
+namespace GroupBot.Library.Services.LP;
+
+public class LowPriorityUserLoader
 {
     private readonly IDatabaseService _database;
     private readonly ILogger _logger;
 
-    public AdminLoadService(IDatabaseService database, ILogger logger)
+    public LowPriorityUserLoader(IDatabaseService database, ILogger logger)
     {
         _database = database;
         _logger = logger;
@@ -15,29 +17,29 @@ public class AdminLoadService
 
     public async Task Load()
     {
-        const string filePath = "admins.json";
+        const string filePath = "lp_users.json";
 
         if (!File.Exists(filePath))
         {
-            Console.WriteLine("admins.json does not exist, skipping config loading");
+            _logger.Info("lp_users.json does not exist, skipping config loading");
             return;
         }
 
         var config = await File.ReadAllTextAsync(filePath);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var adminIds = JsonSerializer.Deserialize<List<long>>(config, options);
+        var lpUsersIds = JsonSerializer.Deserialize<List<long>>(config, options);
 
-        if (adminIds == null)
+        if (lpUsersIds == null)
         {
-            _logger.Info($"There are no admins in JSON file: {filePath}");
+            Console.WriteLine($"There are no admins in JSON file: {filePath}");
             return;
         }
 
-        foreach (var adminId in adminIds)
+        foreach (var lpUserId in lpUsersIds)
         {
             try
             {
-                await _database.AddAdmin(adminId);
+                await _database.AddLowPriorityUser(lpUserId);
             }
             catch (Exception e)
             {
@@ -45,6 +47,6 @@ public class AdminLoadService
             }
         }
 
-        _logger.Info("Admins Loaded");
+        _logger.Info("Low priority users loaded");
     }
 }

@@ -3,6 +3,7 @@ using GroupBot.Library.Commands.Repository;
 using GroupBot.Library.Logging;
 using GroupBot.Library.Services.Command;
 using GroupBot.Library.Services.Database;
+using GroupBot.Library.Services.LP;
 using GroupBot.Library.Services.Request;
 using GroupBot.Library.Services.Telegram;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,7 +56,11 @@ public class Bot
         commandService.RegisterCommands();
 
         var adminLoadService = host.Services.GetRequiredService<AdminLoadService>();
-        await adminLoadService.LoadConfig();
+        await adminLoadService.Load();
+        
+        
+        var lpUserLoadService = host.Services.GetRequiredService<LowPriorityUserLoader>();
+        await lpUserLoadService.Load();
 
         var telegramService = host.Services.GetRequiredService<ITelegramService>();
         await telegramService.StartBot();

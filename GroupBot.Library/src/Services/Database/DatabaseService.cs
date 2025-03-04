@@ -144,8 +144,7 @@ public class DatabaseService : IDatabaseService, IDisposable
         try
         {
             var chatList = new ChatList
-            {
-                Name = listName.Trim(),
+            { Name = listName.Trim(),
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -161,6 +160,69 @@ public class DatabaseService : IDatabaseService, IDisposable
             var position = 1;
 
             foreach (var user in users.OrderBy(u => random.Next()))
+            {
+                var listMember = new ListMember
+                {
+                    ListId = chatList.Id,
+                    UserId = user.Id,
+                    Position = position++,
+                    InsertedAt = DateTime.UtcNow,
+                    List = chatList,
+                    User = user
+                };
+                _dbContext.ListMembers.Add(listMember);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            transaction.Commit();
+
+            _lists = await GetAllLists();
+            return chatList.Id;
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
+    }
+
+    public async Task<long> CreateListIncludingLowerPriorityAndShuffle(string listName)
+    {
+        using var transaction = _dbContext.Database.BeginTransaction();
+
+        try
+        {
+            var chatList = new ChatList
+            {
+                Name = listName.Trim(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _dbContext.Lists.Add(chatList);
+            await _dbContext.SaveChangesAsync();
+
+            var allUsers = await _dbContext.Users.ToListAsync();
+            
+            if (!allUsers.Any())
+                throw new InvalidOperationException("No users found to add to the list.");
+
+            var lowPriorityUserIds = await _dbContext.LowPriorityUsers
+                .Select(lpu => lpu.UserId)
+                .ToListAsync();
+
+            var regularUsers = allUsers.Where(u => !lowPriorityUserIds.Contains(u.Id)).ToList();
+            var lowPriorityUsers = allUsers.Where(u => lowPriorityUserIds.Contains(u.Id)).ToList();
+
+            var random = new Random();
+            var shuffledRegularUsers = regularUsers.OrderBy(u => random.Next()).ToList();
+
+            var shuffledLowPriorityUsers = lowPriorityUsers.OrderBy(u => random.Next()).ToList();
+
+            var orderedUsers = shuffledRegularUsers.Concat(shuffledLowPriorityUsers).ToList();
+
+            int position = 1;
+
+            foreach (var user in orderedUsers)
             {
                 var listMember = new ListMember
                 {
@@ -431,6 +493,41 @@ public class DatabaseService : IDatabaseService, IDisposable
     }
 
 
+    public async Task AddLowPriorityUser(long userId)
+    {
+        try
+        {
+            await _listsSemaphore.WaitAsync();
+
+            var user = await _dbContext.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException($"User with ID {userId} not found.");
+            }
+
+            bool lpUserExists = await _dbContext.LowPriorityUsers.AnyAsync(a => a.UserId == userId);
+
+            if (lpUserExists)
+            {
+                return;
+            }
+
+            var lpUser = new LowPriorityUser 
+            {
+                UserId = userId,
+                User = user
+            };
+
+            _dbContext.LowPriorityUsers.Add(lpUser);
+            await _dbContext.SaveChangesAsync();
+        }
+        finally
+        {
+            _listsSemaphore.Release();
+        }
+    }
+    
     public void Dispose()
     {
         _dbContext?.Dispose();
