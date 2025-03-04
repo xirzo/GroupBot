@@ -16,6 +16,14 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
 
+        <None Update="admins.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+
+        <None Update="lp_users.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+
 
     </ItemGroup> 
     

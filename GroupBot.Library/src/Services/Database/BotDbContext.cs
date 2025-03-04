@@ -18,6 +18,7 @@ public sealed class BotDbContext : DbContext
         Lists = Set<ChatList>();
         ListMembers = Set<ListMember>();
         Admins = Set<Admin>();
+        LowPriorityUsers = Set<LowPriorityUser>();
         
         System.Data.Entity.Database.SetInitializer<BotDbContext>(null);
     }
@@ -76,9 +77,17 @@ public sealed class BotDbContext : DbContext
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
             );
 
+            CREATE TABLE IF NOT EXISTS low_priority_users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
+                UNIQUE (user_id)
+            );
+
             CREATE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id);
             CREATE INDEX IF NOT EXISTS idx_list_members_list_position ON list_members(list_id, position);
             CREATE INDEX IF NOT EXISTS idx_list_members_list_user ON list_members(list_id, user_id);
+            CREATE INDEX IF NOT EXISTS idx_low_priority_users_user_id ON low_priority_users(user_id);
         ";
 
         command.ExecuteNonQuery();
@@ -88,6 +97,7 @@ public sealed class BotDbContext : DbContext
     public DbSet<ChatList> Lists { get; init; }
     public DbSet<ListMember> ListMembers { get; init; }
     public DbSet<Admin> Admins { get; init; }
+    public DbSet<LowPriorityUser> LowPriorityUsers { get; init; }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
@@ -208,6 +218,27 @@ public sealed class BotDbContext : DbContext
             .HasForeignKey(a => a.UserId)
             .WillCascadeOnDelete(false);
 
+        // Configure LowPriorityUsers entity
+        modelBuilder.Entity<LowPriorityUser>()
+            .ToTable("low_priority_users")
+            .HasKey(lpu => lpu.Id);
+
+        modelBuilder.Entity<LowPriorityUser>()
+            .Property(lpu => lpu.Id)
+            .HasColumnName("id")
+            .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+        modelBuilder.Entity<LowPriorityUser>()
+            .Property(lpu => lpu.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
+
+        modelBuilder.Entity<LowPriorityUser>()
+            .HasRequired(lpu => lpu.User)
+            .WithMany()
+            .HasForeignKey(lpu => lpu.UserId)
+            .WillCascadeOnDelete(false);
+
         modelBuilder.Entity<User>()
             .HasIndex(u => u.TelegramId)
             .IsUnique();
@@ -218,6 +249,10 @@ public sealed class BotDbContext : DbContext
 
         modelBuilder.Entity<ListMember>()
             .HasIndex(lm => new { lm.ListId, lm.UserId })
+            .IsUnique();
+
+        modelBuilder.Entity<LowPriorityUser>()
+            .HasIndex(lpu => lpu.UserId)
             .IsUnique();
 
         base.OnModelCreating(modelBuilder);
