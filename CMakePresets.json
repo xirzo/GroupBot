@@ -1,0 +1,32 @@
+{
+    "version": 1,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 31,
+        "patch": 4
+    },
+    "configurePresets": [
+        {
+            "name": "gcc",
+            "displayName": "GCC",
+            "description": "Default build options for GCC",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/out/Debug",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_C_FLAGS": "-Wsuggest-override -Wall -Werror -std=c23"
+            }
+        },
+        {
+            "name": "clang",
+            "displayName": "Clang",
+            "description": "Default build options for Clang",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/out/Debug",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_C_FLAGS": "-Winconsistent-missing-override -Winconsistent-missing-destructor-override -Wall -Werror -std=c23"
+            }
+        }
+    ]
+}
