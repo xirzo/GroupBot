@@ -18,6 +18,8 @@ find_package(CURL)
 include_directories(/usr/local/include ${OPENSSL_INCLUDE_DIR}
                     ${Boost_INCLUDE_DIR})
 
+find_package(SQLiteCpp REQUIRED)
+
 if(CURL_FOUND)
   include_directories(${CURL_INCLUDE_DIRS})
   add_definitions(-DHAVE_CURL)

@@ -2,16 +2,20 @@
 
 #include <tgbot/tgbot.h>
 
+#include "database.h"
+
 namespace groupbot {
 typedef struct bot
 {
     TgBot::Bot* bot;
+    database::db* db;
 } bot;
 
 bot* create(const char* token) {
-    bot* b = (bot*)malloc(sizeof(*b));
+    bot* b = new bot;
 
     b->bot = new TgBot::Bot(token);
+    b->db = database::create("bot_data.db");
 
     return b;
 }
@@ -34,9 +38,11 @@ void start(bot* bot) {
 }
 
 void free(bot* bot) {
-    delete[] bot->bot;
+    delete bot->bot;
 
-    free(bot);
+    database::free(bot->db);
+
+    delete bot;
 }
 
 }  // namespace groupbot
