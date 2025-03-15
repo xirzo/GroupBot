@@ -4,7 +4,8 @@
 namespace groupbot {
 typedef struct bot bot;
 
-bot* create(const char* token);
+bot* create(const char* token, const char* users_config_filename,
+            const char* admins_config_filename);
 void start(bot* bot);
 void free(bot* bot);
 

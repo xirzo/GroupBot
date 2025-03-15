@@ -13,7 +13,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    groupbot::bot* b = groupbot::create(token);
+    groupbot::bot* b = groupbot::create(token, "users.json", "admins.json");
 
     groupbot::start(b);
 

@@ -19,6 +19,7 @@ include_directories(/usr/local/include ${OPENSSL_INCLUDE_DIR}
                     ${Boost_INCLUDE_DIR})
 
 find_package(SQLiteCpp REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 if(CURL_FOUND)
   include_directories(${CURL_INCLUDE_DIRS})
