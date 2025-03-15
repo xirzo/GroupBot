@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include "database.h"
 
@@ -15,18 +16,12 @@ typedef struct bot
     database::db* db;
 } bot;
 
-bot* create(const char* token, const char* users_config_filename,
-            const char* admins_config_filename) {
-    bot* b = new bot;
-
-    b->bot = new TgBot::Bot(token);
-    b->db = database::create("bot_data.db");
-
+void __readUsers(bot* b, const char* users_config_filename) {
     std::ifstream users_file(users_config_filename);
 
     if (!users_file.is_open()) {
         fprintf(stderr, "error: Failed to open %s\n", users_config_filename);
-        return nullptr;
+        return;
     }
 
     nlohmann::json users_json;
@@ -37,12 +32,12 @@ bot* create(const char* token, const char* users_config_filename,
     catch (const nlohmann::json::parse_error& e) {
         fprintf(stderr, "error: Failed to parse json %s : %s\n", users_config_filename,
                 e.what());
-        return nullptr;
+        return;
     }
 
     if (!users_json.is_array()) {
         fprintf(stderr, "error: %s is not an array\n", users_config_filename);
-        return nullptr;
+        return;
     }
 
     for (std::size_t i = 0; i < users_json.size(); ++i) {
@@ -79,6 +74,61 @@ bot* create(const char* token, const char* users_config_filename,
                     e.what());
         }
     }
+}
+
+void __readAdmins(bot* b, const char* admins_config_filename) {
+    std::ifstream admins_file(admins_config_filename);
+
+    if (!admins_file.is_open()) {
+        fprintf(stderr, "error: Failed to open %s\n", admins_config_filename);
+        return;
+    }
+
+    nlohmann::json admins_json;
+
+    try {
+        admins_json = nlohmann::json::parse(admins_file);
+    }
+    catch (const nlohmann::json::parse_error& e) {
+        fprintf(stderr, "error: Failed to parse json %s : %s\n", admins_config_filename,
+                e.what());
+        return;
+    }
+
+    if (!admins_json.is_array()) {
+        fprintf(stderr, "error: %s is not an array\n", admins_config_filename);
+        return;
+    }
+
+    for (const nlohmann::json& j : admins_json) {
+        try {
+            if (!j.is_number_integer()) {
+                fprintf(stderr, "error: Admins json array contains non-integer value\n");
+                continue;
+            }
+
+            std::int32_t admin_user_id = j.get<std::int32_t>();
+
+            if (!database::addAdminIfNotPresent(b->db, admin_user_id)) {
+                fprintf(stderr, "error: Failed to add admin to database, admin id: %d\n",
+                        admin_user_id);
+            }
+        }
+        catch (const std::exception& e) {
+            fprintf(stderr, "error: Failed to process admin %s\n", e.what());
+        }
+    }
+}
+
+bot* create(const char* token, const char* users_config_filename,
+            const char* admins_config_filename) {
+    bot* b = new bot;
+
+    b->bot = new TgBot::Bot(token);
+    b->db = database::create("bot_data.db");
+
+    __readUsers(b, users_config_filename);
+    __readAdmins(b, admins_config_filename);
 
     return b;
 }

@@ -78,6 +78,33 @@ std::int32_t addUserIfNotPresent(db* db, const int64_t& telegram_id,
     }
 }
 
+std::int32_t addAdminIfNotPresent(db* db, const int32_t& user_id) {
+    try {
+        SQLite::Statement checkQuery(*db->db,
+                                     "SELECT admin_id FROM admin WHERE user_id = ?");
+
+        checkQuery.bind(1, user_id);
+
+        if (checkQuery.executeStep()) {
+            return checkQuery.getColumn(0).getInt();
+        }
+
+        SQLite::Statement insertQuery(*db->db,
+                                      "INSERT INTO admin (user_id) "
+                                      "VALUES (?)");
+
+        insertQuery.bind(1, user_id);
+
+        insertQuery.exec();
+
+        return static_cast<int32_t>(db->db->getLastInsertRowid());
+    }
+    catch (const SQLite::Exception& e) {
+        fprintf(stderr, "error: SQLite error in addAdminIfNotPresent: %s\n", e.what());
+        return -1;
+    }
+}
+
 void free(db* db) {
     delete db->db;
 
