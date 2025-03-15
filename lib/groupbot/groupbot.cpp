@@ -130,6 +130,9 @@ bot* create(const char* token, const char* users_config_filename,
     __readUsers(b, users_config_filename);
     __readAdmins(b, admins_config_filename);
 
+    std::int32_t list_id = database::addList(b->db, "Test_List");
+    database::shuffleList(b->db, list_id);
+
     return b;
 }
 
