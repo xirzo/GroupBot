@@ -4,6 +4,7 @@ target_link_libraries(
   groupbot
   PRIVATE nlohmann_json::nlohmann_json
           database
+          command
           /usr/local/lib/libTgBot.a
           ${CMAKE_THREAD_LIBS_INIT}
           ${OPENSSL_LIBRARIES}

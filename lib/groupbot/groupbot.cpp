@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
+#include "command.h"
 #include "database.h"
 
 namespace groupbot {
@@ -14,6 +15,7 @@ typedef struct bot
 {
     TgBot::Bot* bot;
     database::db* db;
+    command::repository* repo;
 } bot;
 
 void __readUsers(bot* b, const char* users_config_filename) {
@@ -120,6 +122,23 @@ void __readAdmins(bot* b, const char* admins_config_filename) {
     }
 }
 
+void __addListCommand(void* context, const std::vector<std::string>& args) {
+    groupbot::bot* b = reinterpret_cast<groupbot::bot*>(context);
+
+    if (args.empty()) {
+        fprintf(stderr, "Usage: /addlist <list_name>\n");
+        return;
+    }
+
+    printf("Creating list: %s\n", args[0].c_str());
+
+    if (database::addList(b->db, args[0].c_str()) < 0) {
+        fprintf(stderr, "Failed to create list: %s\n", args[0].c_str());
+    } else {
+        printf("List created successfully\n");
+    }
+}
+
 bot* create(const char* token, const char* users_config_filename,
             const char* admins_config_filename) {
     bot* b = new bot;
@@ -130,19 +149,20 @@ bot* create(const char* token, const char* users_config_filename,
     __readUsers(b, users_config_filename);
     __readAdmins(b, admins_config_filename);
 
-    std::int32_t list_id = database::addList(b->db, "Test_List");
-    database::shuffleList(b->db, list_id);
+    b->repo = new command::repository;
+
+    command::registerCommand(b->repo, "/addlist", __addListCommand);
 
     return b;
 }
 
-void start(bot* bot) {
-    bot->bot->getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message) {
-        printf("Message: %s\n", message->text.c_str());
+void start(bot* b) {
+    b->bot->getEvents().onAnyMessage([&b](TgBot::Message::Ptr message) {
+        command::executeCommand(b->repo, reinterpret_cast<void*>(b), message->text);
     });
 
     try {
-        TgBot::TgLongPoll longPoll(*bot->bot);
+        TgBot::TgLongPoll longPoll(*b->bot);
 
         while (true) {
             longPoll.start();
@@ -154,7 +174,13 @@ void start(bot* bot) {
 }
 
 void free(bot* bot) {
+    if (!bot) {
+        fprintf(stderr, "error: Bot is already freed\n");
+        return;
+    }
+
     delete bot->bot;
+    delete bot->repo;
 
     database::free(bot->db);
 
