@@ -1,49 +1,23 @@
-#include <tgbot/tgbot.h>
-
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
-#include <string>
+#include <cstring>
 
-using namespace TgBot;
+#include "groupbot.h"
 
 int main() {
-    std::string token(getenv("TOKEN"));
+    const char* token(std::getenv("token"));
 
-    printf("Token: %s\n", token.c_str());
-
-    Bot bot(token);
-
-    bot.getEvents().onCommand("start", [&bot](Message::Ptr message) {
-        bot.getApi().sendMessage(message->chat->id, "Hi!");
-    });
-
-    bot.getEvents().onAnyMessage([&bot](Message::Ptr message) {
-        printf("User wrote %s\n", message->text.c_str());
-        if (StringTools::startsWith(message->text, "/start")) {
-            return;
-        }
-        bot.getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
-    });
-
-    signal(SIGINT, [](int s) {
-        printf("SIGINT got\n");
-        exit(0);
-    });
-
-    try {
-        printf("Bot username: %s\n", bot.getApi().getMe()->username.c_str());
-        bot.getApi().deleteWebhook();
-
-        TgLongPoll longPoll(bot);
-        while (true) {
-            printf("Long poll started\n");
-            longPoll.start();
-        }
-    }
-    catch (std::exception& e) {
-        printf("error: %s\n", e.what());
+    if (token == nullptr || strlen(token) == 0) {
+        fprintf(stderr, "error: token env is not set");
+        return EXIT_FAILURE;
     }
 
-    return 0;
+    groupbot::bot* b = groupbot::create(token);
+
+    groupbot::start(b);
+
+    groupbot::free(b);
+
+    return EXIT_SUCCESS;
 }
