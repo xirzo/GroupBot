@@ -47,24 +47,33 @@ db* create(const char* filename) {
     return db;
 }
 
-std::int32_t addUser(db* db, const int64_t& telegram_id, const char* full_name,
-                     const char* telegram_name) {
+std::int32_t addUserIfNotPresent(db* db, const int64_t& telegram_id,
+                                 const char* full_name, const char* telegram_name) {
     try {
-        SQLite::Statement query(
+        SQLite::Statement checkQuery(*db->db,
+                                     "SELECT user_id FROM user WHERE telegram_id = ?");
+
+        checkQuery.bind(1, telegram_id);
+
+        if (checkQuery.executeStep()) {
+            return checkQuery.getColumn(0).getInt();
+        }
+
+        SQLite::Statement insertQuery(
             *db->db,
             "INSERT INTO user (telegram_id, full_name, telegram_name) "
             "VALUES (?, ?, ?)");
 
-        query.bind(1, telegram_id);
-        query.bind(2, full_name);
-        query.bind(3, telegram_name);
+        insertQuery.bind(1, telegram_id);
+        insertQuery.bind(2, full_name);
+        insertQuery.bind(3, telegram_name);
 
-        query.exec();
+        insertQuery.exec();
 
         return static_cast<int32_t>(db->db->getLastInsertRowid());
     }
     catch (const SQLite::Exception& e) {
-        fprintf(stderr, "error: SQLite error in addUser: %s\n", e.what());
+        fprintf(stderr, "error: SQLite error in addUserIfNotPresent: %s\n", e.what());
         return -1;
     }
 }
