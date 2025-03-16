@@ -65,8 +65,8 @@ void __readUsers(bot* b, const char* users_config_filename) {
             std::string full_name = j["full_name"].get<std::string>();
             std::string telegram_name = j["telegram_name"].get<std::string>();
 
-            if (!database::addUserIfNotPresent(b->db, telegram_id, full_name.c_str(),
-                                               telegram_name.c_str())) {
+            if (!database::addUser(b->db, telegram_id, full_name.c_str(),
+                                   telegram_name.c_str())) {
                 fprintf(stderr, "error: Failed to add user to database: %s\n",
                         full_name.c_str());
             }
@@ -111,7 +111,7 @@ void __readAdmins(bot* b, const char* admins_config_filename) {
 
             std::int32_t admin_user_id = j.get<std::int32_t>();
 
-            if (!database::addAdminIfNotPresent(b->db, admin_user_id)) {
+            if (!database::addAdmin(b->db, admin_user_id)) {
                 fprintf(stderr, "error: Failed to add admin to database, admin id: %d\n",
                         admin_user_id);
             }

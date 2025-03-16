@@ -53,8 +53,8 @@ db* create(const char* filename) {
     return db;
 }
 
-std::int32_t addUserIfNotPresent(db* db, const int64_t& telegram_id,
-                                 const char* full_name, const char* telegram_name) {
+std::int32_t addUser(db* db, const int64_t& telegram_id, const char* full_name,
+                     const char* telegram_name) {
     try {
         SQLite::Statement checkQuery(*db->db,
                                      "SELECT user_id FROM user WHERE telegram_id = ?");
@@ -84,7 +84,7 @@ std::int32_t addUserIfNotPresent(db* db, const int64_t& telegram_id,
     }
 }
 
-std::int32_t addAdminIfNotPresent(db* db, const int32_t& user_id) {
+std::int32_t addAdmin(db* db, const int32_t& user_id) {
     try {
         SQLite::Statement checkQuery(*db->db,
                                      "SELECT admin_id FROM admin WHERE user_id = ?");
