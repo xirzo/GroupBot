@@ -14,6 +14,8 @@ std::int32_t addAdmin(db* db, const int32_t& user_id);
 std::int32_t addList(db* db, const char* list_name);
 std::int32_t removeList(db* db, const char* list_name);
 std::int32_t shuffleList(db* db, const std::int32_t& list_id);
+void swapUsers(db* db, const char* list_name, const int32_t& src_user_id,
+               const int32_t& target_user_id);
 
 }  // namespace database
 #endif  // DATABASE_H

@@ -171,6 +171,8 @@ bot* create(const char* token, const char* users_config_filename,
     command::registerCommand(b->repo, "/addlist", __addListCommand);
     command::registerCommand(b->repo, "/removelist", __removeListCommand);
 
+    database::swapUsers(b->db, "G", 4, 6);
+
     return b;
 }
 

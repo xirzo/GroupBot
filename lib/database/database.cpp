@@ -53,6 +53,12 @@ db* create(const char* filename) {
     return db;
 }
 
+void free(db* db) {
+    delete db->db;
+
+    delete db;
+}
+
 std::int32_t addUser(db* db, const int64_t& telegram_id, const char* full_name,
                      const char* telegram_name) {
     try {
@@ -269,10 +275,89 @@ std::int32_t shuffleList(db* db, const std::int32_t& list_id) {
     }
 }
 
-void free(db* db) {
-    delete db->db;
+void swapUsers(db* db, const char* list_name, const int32_t& src_user_id,
+               const int32_t& target_user_id) {
+    try {
+        if (src_user_id == target_user_id) {
+            fprintf(stderr, "error: Cannot swap users with the same id: %d\n",
+                    src_user_id);
+            return;
+        }
 
-    delete db;
+        SQLite::Transaction transaction(*db->db);
+
+        SQLite::Statement checkListQuery(*db->db,
+                                         "SELECT list_id FROM list WHERE list_name = ?");
+
+        checkListQuery.bind(1, list_name);
+
+        std::int32_t list_id;
+
+        if (!checkListQuery.executeStep()) {
+            fprintf(stderr, "error: List with list_name %s not found\n", list_name);
+            return;
+        } else {
+            list_id = checkListQuery.getColumn(0).getInt();
+        }
+
+        struct ListUser
+        {
+            std::int32_t list_user_id;
+            std::int32_t user_position;
+        };
+
+        SQLite::Statement srcUserQuery(*db->db,
+                                       "SELECT list_user_id, user_position FROM "
+                                       "list_user WHERE list_id = ? AND user_id = ?");
+        srcUserQuery.bind(1, list_id);
+        srcUserQuery.bind(2, src_user_id);
+
+        ListUser src_user;
+
+        if (!srcUserQuery.executeStep()) {
+            fprintf(stderr, "error: Source user %d not found in list %s\n", src_user_id,
+                    list_name);
+            return;
+        }
+
+        src_user.list_user_id = srcUserQuery.getColumn(0).getInt();
+        src_user.user_position = srcUserQuery.getColumn(1).getInt();
+
+        SQLite::Statement targetUserQuery(*db->db,
+                                          "SELECT list_user_id, user_position FROM "
+                                          "list_user WHERE list_id = ? AND user_id = ?");
+        targetUserQuery.bind(1, list_id);
+        targetUserQuery.bind(2, target_user_id);
+
+        ListUser target_user;
+
+        if (!targetUserQuery.executeStep()) {
+            fprintf(stderr, "error: Target user %d not found in list %s\n",
+                    target_user_id, list_name);
+            return;
+        }
+
+        target_user.list_user_id = targetUserQuery.getColumn(0).getInt();
+        target_user.user_position = targetUserQuery.getColumn(1).getInt();
+
+        SQLite::Statement updatePositionQuery(
+            *db->db, "UPDATE list_user SET user_position = ? WHERE list_user_id = ?");
+
+        updatePositionQuery.bind(1, target_user.user_position);
+        updatePositionQuery.bind(2, src_user.list_user_id);
+        updatePositionQuery.exec();
+
+        updatePositionQuery.reset();
+        updatePositionQuery.bind(1, src_user.user_position);
+        updatePositionQuery.bind(2, target_user.list_user_id);
+        updatePositionQuery.exec();
+
+        transaction.commit();
+    }
+    catch (const SQLite::Exception& e) {
+        fprintf(stderr, "error: SQLite error in swapUsers: %s\n", e.what());
+        return;
+    }
 }
 
 }  // namespace database
