@@ -4,6 +4,7 @@
 #include <SQLiteCpp/Transaction.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <random>
 #include <vector>
 
@@ -159,6 +160,50 @@ std::int32_t addList(db* db, const char* list_name) {
     }
     catch (const SQLite::Exception& e) {
         fprintf(stderr, "error: SQLite error in addList: %s\n", e.what());
+        return -1;
+    }
+}
+
+std::int32_t removeList(db* db, const char* list_name) {
+    try {
+        SQLite::Transaction transaction(*db->db);
+
+        SQLite::Statement checkQuery(*db->db,
+                                     "SELECT list_id FROM list WHERE list_name = ?");
+        checkQuery.bind(1, list_name);
+
+        std::int32_t list_id;
+
+        if (checkQuery.executeStep()) {
+            list_id = checkQuery.getColumn(0).getInt();
+        } else {
+            fprintf(stderr, "error: There is no list with name: %s\n", list_name);
+            return 0;
+        }
+
+        SQLite::Statement getListUser(
+            *db->db, "SELECT list_user_id FROM list_user WHERE list_id = ?");
+        getListUser.bind(1, list_id);
+
+        while (getListUser.executeStep()) {
+            std::int32_t list_user_id = getListUser.getColumn(0).getInt();
+
+            SQLite::Statement removeListUser(
+                *db->db, "DELETE FROM list_user WHERE list_user_id = ?");
+            removeListUser.bind(1, list_user_id);
+            removeListUser.exec();
+        }
+
+        SQLite::Statement removeList(*db->db, "DELETE FROM list WHERE list_id = ?");
+        removeList.bind(1, list_id);
+        removeList.exec();
+
+        transaction.commit();
+
+        return list_id;
+    }
+    catch (const SQLite::Exception& e) {
+        fprintf(stderr, "error: SQLite error in removeList: %s\n", e.what());
         return -1;
     }
 }

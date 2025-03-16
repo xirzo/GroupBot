@@ -9,7 +9,7 @@ int main() {
     const char* token(std::getenv("token"));
 
     if (token == nullptr || strlen(token) == 0) {
-        fprintf(stderr, "error: token env is not set");
+        fprintf(stderr, "error: token env is not set\n");
         return EXIT_FAILURE;
     }
 

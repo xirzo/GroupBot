@@ -139,6 +139,23 @@ void __addListCommand(void* context, const std::vector<std::string>& args) {
     }
 }
 
+void __removeListCommand(void* context, const std::vector<std::string>& args) {
+    groupbot::bot* b = reinterpret_cast<groupbot::bot*>(context);
+
+    if (args.empty()) {
+        fprintf(stderr, "Usage: /removelist <list_name>\n");
+        return;
+    }
+
+    printf("Removing list: %s\n", args[0].c_str());
+
+    if (database::removeList(b->db, args[0].c_str()) < 0) {
+        fprintf(stderr, "Failed to remove list: %s\n", args[0].c_str());
+    } else {
+        printf("List removed successfully\n");
+    }
+}
+
 bot* create(const char* token, const char* users_config_filename,
             const char* admins_config_filename) {
     bot* b = new bot;
@@ -152,6 +169,7 @@ bot* create(const char* token, const char* users_config_filename,
     b->repo = new command::repository;
 
     command::registerCommand(b->repo, "/addlist", __addListCommand);
+    command::registerCommand(b->repo, "/removelist", __removeListCommand);
 
     return b;
 }
